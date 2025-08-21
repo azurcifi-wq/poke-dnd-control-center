@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Poké‑DnD Control Center</title>
+  <style>
+    :root{
+      --bg:#f7f7f9;          /* helles Grau/Weiß */
+      --panel:#ffffff;        /* Flächen */
+      --card:#ffffff;         /* Karten */
+      --chip:#f3f4f6;         /* Pills/Chips */
+      --text:#111827;         /* fast Schwarz */
+      --muted:#6b7280;        /* Grau für Nebeninfos */
+      --accent:#e60012;       /* Pokémon‑Rot */
+      --accent-contrast:#ffffff;
+      --warn:#ffcb05;         /* Pokémon‑Gelb */
+      --bad:#b91c1c;          /* Tiefrot für destruktiv */
+      --border:#e5e7eb;       /* helle Ränder */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color:var(--text);
+      background:linear-gradient(180deg,#ffffff 0%,#f7f7f9 60%,#f3f4f6 100%);
+    }
+
+    .app{display:grid; grid-template-rows:auto 1fr; height:100%}
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:14px 18px; background:var(--accent); color:var(--accent-contrast);
+      border-bottom:1px solid #d90418; box-shadow:0 4px 18px rgba(230,0,18,.12);
+    }
+    header h1{font-size:18px; margin:0}
+    header small{color:rgba(255,255,255,.85)}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+
+    button, input, select, textarea{font:inherit}
+    /* Einheitliche Button-Ausrichtung */
+    button{display:inline-flex; align-items:center; justify-content:center; line-height:1}
+    button{background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:700}
+    button.ghost{background:transparent; color:var(--text); border:1px solid var(--border)}
+    button.warn{background:var(--warn); color:#1f2937}
+    button.bad{background:var(--bad); color:#fff}
+    button.small{padding:8px 12px; border-radius:8px; font-size:12px} /* symmetrische Vertikal-Polsterung */
+    .toggle{background:#e5e7eb; color:#111827}
+    .toggle.on{background:var(--accent); color:#fff}
+
+    .layout{display:grid; grid-template-columns:280px 1fr; gap:24px; padding:24px; height:calc(100vh - 64px)}
+
+    nav{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px; overflow:auto}
+    nav h3{margin:8px 8px 10px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
+    .tab{display:block; padding:10px 12px; border-radius:12px; color:var(--text); text-decoration:none; margin:6px 4px; border:1px solid transparent}
+    .tab.active{background:var(--card); border-color:var(--accent); box-shadow:0 0 0 2px rgba(230,0,18,.10)}
+
+    main{overflow:auto; border-radius:16px; border:1px solid var(--border); background:var(--panel)}
+    .panel{padding:24px}
+    /* Mehr Whitespace oberhalb der Panel-Inhalte */
+    .panel > .row:first-child{margin-bottom:18px !important}
+
+    .grid{display:grid; gap:20px}
+    .grid.cols-1{grid-template-columns:1fr}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    /* Größerer Abstand speziell zwischen Spieler-Karten */
+    #players.grid{gap:28px}
+
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px}
+    /* Spieler-Karten: klarer Kontrast & Element-Charakter */
+    #players .card.player{position:relative; background:#fff; border:1px solid #d1d5db; box-shadow:0 12px 28px rgba(0,0,0,.10)}
+    #players .card.player + .card.player{margin-top:6px} /* zusätzliche Mini-Luft für mobile stacks */
+    #players .card.player::before{content:""; position:absolute; left:-1px; top:-1px; bottom:-1px; width:6px; border-radius:16px 0 0 16px; background:linear-gradient(180deg,var(--accent) 0%, var(--warn) 100%)}
+    #players .card.player:hover{box-shadow:0 14px 32px rgba(0,0,0,.12)}
+
+    /* Avatar visuell stärker */
+    .avatar{width:44px; height:44px; border-radius:999px; background:#fff; border:2px solid var(--accent); display:grid; place-items:center; font-weight:800; color:#111}
+
+    /* Fokus/Interaktion: klare Sichtbarkeit */
+    input[type="text"], input[type="number"], input[type="url"], textarea, select, button{transition:box-shadow .15s, border-color .15s, transform .12s}
+    input[type="text"]:focus, input[type="number"]:focus, input[type="url"]:focus, textarea:focus, select:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(230,0,18,.15); outline:none}
+    button:hover{filter:brightness(.95)}
+    button.ghost:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(230,0,18,.10)}
+
+    /* Orden/Badges: Hover-Feedback */
+    .badge:hover{box-shadow:0 0 0 2px rgba(230,0,18,.15)}
+    .row{display:flex; gap:14px; align-items:center}
+    .grow{flex:1; min-width:0}
+    .muted{color:var(--muted)}
+
+    .pill{display:inline-flex; align-items:center; gap:6px; background:var(--chip); border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:999px; font-size:12px}
+    .badges{display:flex; gap:6px; flex-wrap:wrap}
+    .badge{width:26px; height:26px; border-radius:50%; background:#f3f4f6; border:1px solid var(--border); display:grid; place-items:center; font-weight:700; color:#374151; cursor:pointer}
+    .badge.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+
+    input[type="text"], input[type="number"], input[type="url"], textarea, select{
+      width:100%; background:#fff; color:var(--text); border:1px solid #d1d5db; border-radius:10px; padding:8px 10px; outline:none
+    }
+
+    .pokecard{display:grid; grid-template-columns:128px minmax(0,1fr) auto; gap:10px; align-items:start; padding:8px; background:var(--card); border:1px solid var(--border); border-radius:12px}
+    .pokecard img{width:128px; height:128px; object-fit:contain; background:#f3f4f6; border-radius:8px}
+
+    .itemcard{display:grid; grid-template-columns:48px minmax(0,1fr) auto; gap:10px; align-items:center; padding:8px; background:var(--card); border:1px solid var(--border); border-radius:12px}
+    .itemcard img{width:48px; height:48px; object-fit:contain; background:#f3f4f6; border-radius:8px}
+
+    /* Größere Bilder NUR im Inventar (200%) */
+    .inv .itemcard{grid-template-columns:96px minmax(0,1fr) auto}
+    .inv .itemcard img{width:96px; height:96px}
+
+    /* Klick-Zoom Hinweis */
+    .pokecard img, .itemcard img{cursor:zoom-in}
+
+    /* Lightbox */
+    #lightbox{position:fixed; inset:0; background:rgba(0,0,0,.86); display:none; z-index:9999; place-items:center; padding:24px}
+    #lightbox .lb-inner{position:relative; max-width:95vw; max-height:90vh}
+    #lightbox img{max-width:95vw; max-height:90vh; display:block; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    #lbClose{position:absolute; top:-10px; right:-10px; width:36px; height:36px; border-radius:999px; background:rgba(255,255,255,.9); border:1px solid var(--border); color:#111; cursor:pointer; font-size:22px; line-height:1}
+
+    .mapwrap{position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border)}
+    .mapwrap .toolbar{position:absolute; right:10px; top:10px; display:flex; gap:6px; z-index:2}
+    /* Orte/Places Marker auf der Karte */
+    .place{position:absolute; width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:#111827; color:#fff; font-weight:900; border:3px solid var(--accent); cursor:grab}
+    .place.city{background:#111827}
+    .place.route{background:#374151}
+    .place-label{position:absolute; top:38px; left:50%; transform:translateX(-50%); background:rgba(17,24,39,.9); color:#fff; padding:2px 6px; border-radius:6px; font-size:11px; white-space:nowrap; pointer-events:none}
+
+    /* Liste unten: Städte & Routen */
+    #placesList details{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:8px}
+    #placesList summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px}
+    #placesList summary::-webkit-details-marker{display:none}
+    .pill.type{font-weight:700}
+    .kv{display:grid; grid-template-columns:140px 1fr; gap:8px; margin:10px 0}
+    .kv label{color:var(--muted)}
+    .checkrow{display:flex; flex-wrap:wrap; gap:10px}
+    .checkrow label{display:flex; gap:6px; align-items:center}
+    .enc textarea{width:100%; min-height:80px}
+    .place-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .map{position:relative; width:100%; min-height:520px; background:#f3f4f6 center/contain no-repeat}
+    .token{position:absolute; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:var(--accent); color:#fff; font-weight:900; border:3px solid rgba(0,0,0,.12); cursor:grab}
+
+    .footer{padding:10px 16px; color:var(--muted); font-size:12px; border-top:1px solid var(--border)}
+
+    @media (max-width:980px){ .layout{grid-template-columns:1fr; height:auto} nav{order:2} main{order:1} }
+    /* ===== Layout-Tuning für Spieler-Zeile ===== */
+    #players .card.player > .row{flex-wrap:nowrap; align-items:center}
+    /* Name nicht mehr 100% breit: feste, angenehme Breite; restlicher Platz bleibt frei */
+    #players .card.player .grow{display:grid; grid-template-columns:minmax(200px,360px) auto; grid-column-gap:12px; align-items:center}
+    #players .card.player .grow > input.pname{grid-column:1 / 2; width:100%}
+    #players .card.player .grow > .row{grid-column:1 / -1}
+
+    @media (max-width: 700px){
+      #players .card.player > .row{flex-wrap:wrap}
+      #players .card.player .grow{grid-template-columns:1fr}
+    }
+    /* Icon-Only Delete Button neben dem Namen */
+    .iconbtn{width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:var(--bad); border:1px solid var(--bad); color:#fff; cursor:pointer}
+    .iconbtn svg{width:18px; height:18px; fill:currentColor; display:block}
+    .iconbtn:hover{filter:brightness(.95)}
+    .iconbtn.warn{filter:brightness(.90); box-shadow:0 0 0 3px rgba(185,28,28,.28) inset}
+    .iconbtn.warn{background:#fff0f0; border-color:#fca5a5}
+
+    /* Größeres Plus für wichtige Add-Buttons */
+    button.addMon::before, button.addItem::before, #btnAddPlayer::before{content:'+'; font-size:18px; font-weight:900; margin-right:8px; line-height:1}
+    button.ghost.addMon, button.ghost.addItem{border-color:var(--accent); box-shadow:0 0 0 2px rgba(230,0,18,.06) inset}
+    /* Text vertikal mittig halten */
+    .row button.small.ghost.addMon, .row button.small.ghost.addItem{align-self:center}
+
+    /* Responsive: Name + Trash bleiben nebeneinander */
+    @media (max-width:700px){
+      #players .card.player .grow{grid-template-columns:1fr auto}
+    }
+  /* Fehler-Banner (Diagnose) */
+    #errbar{position:fixed; left:12px; bottom:12px; background:#111; color:#fff; padding:10px 12px; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,.3); display:none; gap:10px; align-items:center; z-index:10000}
+    #errbar .msg{max-width:52vw; font-size:12px; opacity:.95}
+    #btnRebind{background:var(--warn); color:#111}
+    #btnErrHide{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.3)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Poké‑DnD Control Center</h1>
+        <small class="muted">Kostenlos • lokal • JSON‑Export • Auto‑Bilder</small>
+      </div>
+      <div class="actions">
+        <button id="btnExport" class="ghost">Export (.json)</button>
+        <button id="btnImport" class="ghost">Import (.json)</button>
+        <input id="fileImport" type="file" accept="application/json" style="display:none" />
+        <button id="btnReset" class="bad">Alle Daten löschen</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav>
+        <h3>Bereiche</h3>
+        <a class="tab active" data-tab="players">Spieler & Teams</a>
+        <a class="tab" data-tab="map">Karte</a>
+        <a class="tab" data-tab="rules">Regeln & Preise</a>
+        <a class="tab" data-tab="log">Session‑Log</a>
+        <a class="tab" data-tab="about">Hilfe</a>
+      </nav>
+      <main>
+        <section id="tab-players" class="panel">
+          <div class="row" style="margin-bottom:10px">
+            <h2 class="grow">Spieler & Teams</h2>
+            <button id="btnAddPlayer">Spieler hinzufügen</button>
+          </div>
+          <div id="players" class="grid cols-2"></div>
+        </section>
+
+        <section id="tab-map" class="panel" hidden>
+          <div class="row" style="margin-bottom:10px">
+            <h2 class="grow">Karte & Marker</h2>
+            <div class="row" style="gap:6px">
+              <input id="mapUrl" type="url" placeholder="Karten‑Bild URL (Direktlink)"/>
+              <button id="btnSetMap" class="small">Karte setzen</button>
+              <button id="btnUploadMap" class="small ghost">Bilddatei hochladen</button>
+              <input id="mapFile" type="file" accept="image/*" style="display:none" />
+              <button id="btnAddToken" class="small">Spieler‑Token hinzufügen</button>
+            </div>
+          </div>
+          <div class="mapwrap">
+            <div class="toolbar">
+              <button id="btnSnap" class="small">Positionen speichern</button>
+              <button id="btnClearTokens" class="small warn">Marker löschen</button>
+            </div>
+            <div id="map" class="map"></div>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <div class="row" style="margin-bottom:8px">
+              <h3 class="grow">Städte & Routen</h3>
+              <button id="btnAddPlace" class="small">+ Ort</button>
+            </div>
+            <div id="placesList" class="grid"></div>
+          </div>
+        </section>
+
+        <section id="tab-rules" class="panel" hidden>
+          <h2>Regeln & Preise</h2>
+          <div class="grid cols-2">
+            <div class="card">
+              <h3>Freitext</h3>
+              <textarea id="rulesText" rows="12" placeholder="Levelcaps, Shops, Events, Hausregeln…"></textarea>
+            </div>
+            <div class="card">
+              <h3>Celadon‑Mall (Beispiel‑Shop)</h3>
+              <div id="shop" class="grid"></div>
+              <div class="row" style="margin-top:8px">
+                <input id="shopName" type="text" placeholder="Item‑Name"/>
+                <input id="shopPrice" type="number" placeholder="Preis" style="width:120px"/>
+                <button id="btnAddShop" class="small">Item</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-log" class="panel" hidden>
+          <div class="row" style="margin-bottom:10px">
+            <h2 class="grow">Session‑Log</h2>
+            <button id="btnAddLog" class="small">+ Eintrag</button>
+          </div>
+          <div id="log" class="grid"></div>
+        </section>
+
+        <section id="tab-about" class="panel" hidden>
+          <h2>Hilfe</h2>
+          <div class="card">
+            <ul>
+              <li><b>Vorschau</b> rät Bilder automatisch aus dem Namen (Pokémon + Items). Du kannst auch eine Bild‑URL einfügen.</li>
+              <li>Alles speichert lokal. Über <b>Export</b>/<b>Import</b> teilt ihr euren Stand.</li>
+              <li><b>Alle Daten löschen</b> setzt alles sofort zurück – ohne Neuladen nötig.</li>
+            </ul>
+          </div>
+        </section>
+
+        <div class="footer">Made for your group ♥ – Speichert automatisch in localStorage.</div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Lightbox (falls bisher fehlte) + Fehlerbar -->
+  <div id="lightbox" style="display:none;">
+    <div class="lb-inner">
+      <img id="lbImg" alt=""/>
+      <button id="lbClose">×</button>
+    </div>
+  </div>
+  <div id="errbar" role="status" aria-live="polite">
+    <span>⚠️</span>
+    <span class="msg">Ein Fehler ist aufgetreten.</span>
+    <button id="btnRebind" class="small">Neu binden</button>
+    <button id="btnErrHide" class="small" title="Schließen">×</button>
+  </div>
+
+  <template id="tpl-player">
+    <div class="card player">
+      <div class="row" style="margin-bottom:8px">
+        <div class="avatar" contenteditable>?</div>
+        <div class="grow">
+          <input class="pname" type="text" placeholder="Spielername"/>
+          <button class="iconbtn del" title="Spieler löschen" aria-label="Spieler löschen">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"></path>
+            </svg>
+          </button>
+          <div class="row" style="margin-top:6px">
+            <span class="pill">$ <input class="pmoney" type="number" style="width:100px" value="0"></span>
+            <span class="pill">Orden: <span class="bcount">0</span>/8</span>
+            <button class="small ghost addMon">Pokémon</button>
+            <button class="small ghost addItem">Item</button>
+          </div>
+        </div>
+        
+      </div>
+      <div class="badges"></div>
+      <div class="grid cols-1" style="margin-top:10px">
+        <div>
+          <h4>Team</h4>
+          <div class="team grid"></div>
+        </div>
+        <div>
+          <h4>Inventar</h4>
+          <div class="inv grid"></div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="tpl-poke">
+    <div class="pokecard">
+      <img/>
+      <div class="grow">
+        <div class="row">
+          <input class="monname grow" type="text" placeholder="Pokémon‑Name"/>
+          <select class="lang" style="width:110px">
+            <option value="DE">DE</option>
+            <option value="EN">EN</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <input class="imgurl grow" type="url" placeholder="Bild‑URL (optional)"/>
+        </div>
+      </div>
+      <div class="row" style="flex-direction:column; gap:8px">
+        <button class="small ghost preview">Vorschau</button>
+        <button class="small toggle stealbtn">Steal‑Schutz</button>
+        <button class="small bad remove">Entfernen</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="tpl-item">
+    <div class="itemcard">
+      <img class="simg"/>
+      <div class="grow">
+        <input class="itemname" type="text" placeholder="Item‑Name"/>
+        <input class="itemimg" type="url" placeholder="(optional) Bild‑URL oder leer lassen und Vorschau klicken" style="margin-top:6px"/>
+      </div>
+      <div class="row" style="flex-direction:column; gap:8px">
+        <button class="small ghost preview">Vorschau</button>
+        <button class="small bad remove">Entfernen</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="tpl-shop">
+    <div class="itemcard">
+      <div class="avatar">🛒</div>
+      <div class="grow">
+        <input class="sname" type="text"/>
+        <div class="row" style="margin-top:6px"><span class="pill">$ <input class="sprice" type="number" style="width:120px"></span></div>
+      </div>
+      <button class="small bad remove">Entfernen</button>
+    </div>
+  </template>
+
+  <template id="tpl-log">
+    <div class="itemcard">
+      <div class="avatar">📜</div>
+      <input class="logtext grow" type="text" placeholder="z. B. Schucki besiegt Isty 2:0 – Orden #2"/>
+      <button class="small bad remove">Entfernen</button>
+    </div>
+  </template>
+
+  <script>
+    // === Helpers ===
+    function addLog(text){ state.log.push({text}); save(); try{ renderLog(); }catch(e){} }
+    function showErr(msg){ try{ const b=document.getElementById('errbar'); if(!b) return; b.style.display='flex'; b.querySelector('.msg').textContent=String(msg||'Unbekannter Fehler'); }catch(e){} }
+    window.addEventListener('error', e=>{ showErr(e.message||'Scriptfehler'); });
+    window.addEventListener('unhandledrejection', e=>{ const r=e.reason; showErr((r&& (r.message||r)) || 'Promise-Fehler'); });
+    const $ = s => document.querySelector(s); const $$ = s => Array.from(document.querySelectorAll(s));
+    function prox(u){ if(!u) return ''; try{ const x=new URL(u); return `https://images.weserv.nl/?url=${encodeURIComponent(x.host+x.pathname+x.search)}` }catch(e){ return u } }
+    function slugify(s){ s=(s||'').normalize('NFD'); let o=''; for(const ch of s){const c=ch.toLowerCase(); const cp=ch.codePointAt(0); if(cp>=0x0300&&cp<=0x036F) continue; if((c>='a'&&c<='z')||(c>='0'&&c<='9')||c===' '||c==='-') o+=c;} return o.trim().replace(/\s+/g,'-'); }
+    const deToEn={bisasam:'bulbasaur',bisaknosp:'ivysaur',bisaflor:'venusaur',glumanda:'charmander',glutexo:'charmeleon',glurak:'charizard',schiggy:'squirtle',schillok:'wartortle',turtok:'blastoise',evoli:'eevee',aquana:'vaporeon',blitza:'jolteon',flamara:'flareon',psiana:'espeon',nachtara:'umbreon',folipurba:'leafeon',glaziola:'glaceon',feelinara:'sylveon',pikachu:'pikachu',raichu:'raichu'};
+    const deItemToEn={'pokeball':'poke-ball','pokéball':'poke-ball','superball':'great-ball','hyperball':'ultra-ball','meisterball':'master-ball','sonderbonbon':'rare-candy','rote karte':'red-card'};
+    const toEn=(n,lang)=>{n=String(n||'').trim(); if(!n) return ''; if(lang==='DE'){const k=n.toLowerCase(); if(deToEn[k]) return deToEn[k];} return n;};
+    const guessMon=(n,lang)=>{const en=slugify(toEn(n,lang));return en?`https://img.pokemondb.net/artwork/large/${en}.jpg`:''};
+    const guessItem=n=>{n=String(n||'').trim(); if(!n) return ''; const k=n.toLowerCase(); const slug=slugify(deItemToEn[k]||n); return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${slug}.png`};
+
+    function setImage(el, url){
+      if(!url){ el.removeAttribute('src'); return; }
+      try{ el.referrerPolicy = 'no-referrer'; }catch(e){}
+      const cands = [];
+      if(/^https?:/i.test(url)) cands.push(url); // Direktversuch
+      cands.push(prox(url)); // Proxy als Fallback
+      let i = 0;
+      el.onerror = ()=>{ i++; if(i < cands.length){ el.src = cands[i]; } else { el.removeAttribute('src'); } };
+      el.src = cands[0];
+    }
+
+    // === Lightbox ===
+    function openLightbox(url, alt){
+      const lb = document.getElementById('lightbox');
+      const im = document.getElementById('lbImg');
+      if(!lb || !im) return;
+      im.alt = alt||'';
+      setImage(im, url);
+      lb.style.display = 'grid';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox(){
+      const lb = document.getElementById('lightbox');
+      const im = document.getElementById('lbImg');
+      if(!lb || !im) return;
+      lb.style.display = 'none';
+      im.removeAttribute('src');
+      document.body.style.overflow = '';
+    }
+    window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); });
+    document.addEventListener('click', e=>{ const lb=document.getElementById('lightbox'); if(lb && lb.style.display!=='none' && e.target===lb) closeLightbox(); });
+    setTimeout(()=>{ const x=document.getElementById('lbClose'); if(x) x.onclick=closeLightbox; },0);
+
+    // === State ===
+    const state = JSON.parse(localStorage.getItem('poke_dnd_state')||'null') || {players:[], map:{url:'',tokens:[],places:[]}, rules:'', shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}], log:[]};
+    const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
+
+    // Alles neu zeichnen (ohne Reload)
+    function rerenderAll(){
+      try{ $('#mapUrl').value = state.map?.url || ''; }catch(e){}
+      renderPlayers(); setMapBg(); renderTokens();
+      try{ const rules = $('#rulesText'); if(rules) rules.value = state.rules||''; }catch(e){}
+      try{ const shopEl = $('#shop'); if(shopEl) { /* re-render via helper */ } }catch(e){}
+      // die eigentlichen Renderer werden unten ohnehin erneut aufgerufen
+    }
+
+    // Stable IDs for players (fixes delete issues)
+    function newId(){ return 'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8); }
+    function ensureId(p){ if(!p.id){ p.id = newId(); save(); } return p.id; }
+
+    // === Tabs ===
+    $$('.tab').forEach(t=>t.addEventListener('click',()=>{ $$('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); const id=t.dataset.tab; $$('[id^="tab-"]').forEach(s=>s.hidden=true); $('#tab-'+id).hidden=false; }));
+
+    // === Players ===
+    const playersEl = $('#players');
+    function renderPlayers(){
+      playersEl.innerHTML='';
+      state.players.forEach((p,idx)=>{
+        const frag=document.importNode($('#tpl-player').content,true);
+        const card=frag.querySelector('.card'), avatar=frag.querySelector('.avatar'), pname=frag.querySelector('.pname');
+        const money=frag.querySelector('.pmoney'), bcount=frag.querySelector('.bcount');
+        const badges=frag.querySelector('.badges'), team=frag.querySelector('.team'), inv=frag.querySelector('.inv');
+        const pid = ensureId(p); card.dataset.pid = pid;
+        avatar.textContent=(p.avatar||p.name||'?').slice(0,2).toUpperCase(); avatar.addEventListener('input',()=>{p.avatar=avatar.textContent; save();});
+        pname.value=p.name||''; pname.addEventListener('input',()=>{p.name=pname.value; save();});
+        money.value=p.money||0; money.addEventListener('input',()=>{p.money=Number(money.value||0); save();});
+        badges.innerHTML=''; for(let i=1;i<=8;i++){ const b=document.createElement('div'); b.className='badge'+(p.badges?.includes(i)?' on':''); b.textContent=i; b.onclick=()=>{p.badges=p.badges||[];const ix=p.badges.indexOf(i); if(ix>-1)p.badges.splice(ix,1); else p.badges.push(i); b.classList.toggle('on'); bcount.textContent=p.badges.length; save();}; badges.appendChild(b);} bcount.textContent=p.badges?.length||0;
+        team.innerHTML=''; (p.team||[]).forEach((m,mi)=> team.appendChild(renderMon(p,mi)) );
+        inv.innerHTML=''; (p.items||[]).forEach((it,ii)=> inv.appendChild(renderItem(p,ii)) );
+        card.querySelector('.addMon').onclick=()=>{p.team=p.team||[]; p.team.push({name:'',lang:'DE',img:'',steal:false}); save(); renderPlayers();};
+        card.querySelector('.addItem').onclick=()=>{p.items=p.items||[]; p.items.push({name:'',img:''}); save(); renderPlayers();};
+        const delBtn = card.querySelector('.del');
+        let delArmed = false;
+        delBtn.onclick = () => {
+          if(!delArmed){
+            delArmed = true;
+            delBtn.classList.add('warn');
+            delBtn.setAttribute('aria-label','Wirklich löschen? Nochmal klicken');
+            delBtn.title = 'Wirklich löschen? Nochmal klicken';
+            setTimeout(()=>{ delArmed=false; delBtn.classList.remove('warn'); delBtn.setAttribute('aria-label','Spieler löschen'); delBtn.title='Spieler löschen'; }, 2200);
+            return;
+          }
+          const i = state.players.findIndex(x=>x.id===pid);
+          if(i>-1){ state.players.splice(i,1); save(); renderPlayers(); }
+          else { alert('Spieler nicht gefunden.'); }
+        };
+        playersEl.appendChild(frag);
+      })
+    }
+
+    function renderMon(player, idx){
+      const m=player.team[idx]; const node=document.importNode($('#tpl-poke').content,true);
+      const img=node.querySelector('img'), name=node.querySelector('.monname'), lang=node.querySelector('.lang');
+      const url=node.querySelector('.imgurl'), steal=node.querySelector('.stealbtn'), prev=node.querySelector('.preview');
+      const setImg=()=>{ if(m.img){ setImage(img, m.img); } else { img.removeAttribute('src'); } img.alt = m.name||''; };
+      name.value=m.name||''; name.oninput=()=>{m.name=name.value; save();};
+      lang.value=m.lang||'DE'; lang.onchange=()=>{m.lang=lang.value; save();};
+      url.value=m.img||''; url.oninput=()=>{m.img=url.value; setImg(); save();};
+      prev.onclick=()=>{ if(!url.value && name.value){ const g=guessMon(name.value, lang.value); if(g){ m.img=g; url.value=g; setImg(); save(); return; } } setImg(); };
+      node.querySelector('.remove').onclick=()=>{ player.team.splice(idx,1); save(); renderPlayers(); };
+      steal.classList.toggle('on', !!m.steal); steal.onclick=()=>{ m.steal=!m.steal; steal.classList.toggle('on', m.steal); save(); };
+      setImg(); img.style.cursor='zoom-in'; img.onclick=()=>{ if(m.img){ openLightbox(m.img, m.name||''); } }; return node;
+    }
+
+    function renderItem(player, idx){
+      const it=player.items[idx]; const node=document.importNode($('#tpl-item').content,true);
+      const img=node.querySelector('.simg'), name=node.querySelector('.itemname'), url=node.querySelector('.itemimg'), prev=node.querySelector('.preview');
+      const setImg=()=>{ if(it.img){ setImage(img, it.img); } else { img.removeAttribute('src'); } img.alt = it.name||''; };
+      name.value=it.name||''; name.oninput=()=>{it.name=name.value; save();};
+      url.value=it.img||''; url.oninput=()=>{it.img=url.value; setImg(); save();};
+      prev.onclick=()=>{ if(!url.value && name.value){ const g=guessItem(name.value); if(g){ it.img=g; url.value=g; setImg(); save(); return; } } setImg(); };
+      node.querySelector('.remove').onclick=()=>{ player.items.splice(idx,1); save(); renderPlayers(); };
+      setImg();
+      img.style.cursor='zoom-in';
+      img.onclick=()=>{ const src = it.img || url.value || ''; if(src) openLightbox(src, it.name||''); };
+      return node;
+    }
+
+    $('#btnAddPlayer').onclick=()=>{ state.players.push({id:newId(), name:'',money:0,badges:[],items:[],team:[]}); save(); renderPlayers(); };
+
+    // === Map ===
+    const mapDiv=$('#map'); function setMapBg(){ const u=state.map.url; const src = !u ? '' : (u.startsWith('data:') ? u : prox(u)); mapDiv.style.backgroundImage = u?`url(${src})`:'none'; }
+    $('#btnSetMap').onclick = ()=>{ const v=$('#mapUrl').value.trim(); if(!v){ alert('Bitte eine Bild‑URL einfügen.'); return; } state.map.url=v; save(); setMapBg(); };
+    $('#btnUploadMap').onclick=()=>$('#mapFile').click();
+    $('#mapFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ state.map.url = ev.target.result; save(); setMapBg(); }; r.readAsDataURL(f); });
+    mapDiv.addEventListener('dblclick', e=>{ if(e.target===mapDiv && state.map.url){ openLightbox(state.map.url, 'Karte'); } });
+    $('#mapUrl').value=state.map.url||'';
+
+    // Orte auf Karte setzen Modus
+    let placingPlaceId=null;
+    mapDiv.addEventListener('click', e=>{
+      if(placingPlaceId){ const r=mapDiv.getBoundingClientRect(); const pl=state.map.places.find(p=>p.id===placingPlaceId); if(pl){ pl.x=e.clientX-r.left-18; pl.y=e.clientY-r.top-18; save(); renderTokens(); }
+        placingPlaceId=null; mapDiv.style.cursor='default'; }
+    });
+
+    function renderTokens(){
+      mapDiv.innerHTML='';
+      // Orte/Places zuerst
+      (state.map.places||[]).forEach((pl,i)=>{
+        const el=document.createElement('div');
+        el.className='place '+(pl.type||'city');
+        el.title=pl.name||'';
+        el.style.left=(pl.x||60)+'px';
+        el.style.top=(pl.y||60)+'px';
+        el.draggable=true;
+        el.ondragstart=e=>{ e.dataTransfer.setData('text/place', i); };
+        el.ondblclick=()=>{ const n=prompt('Ort umbenennen', pl.name||''); if(n!==null){ pl.name=n; save(); renderPlaces();
+    // Fehlerbar-Buttons
+    setTimeout(()=>{ const rb=document.getElementById('btnRebind'); const hb=document.getElementById('btnErrHide'); if(rb) rb.onclick=()=>{ try{ renderPlayers(); setMapBg(); renderTokens(); renderPlaces(); if(typeof renderShop==='function') renderShop(); if(typeof renderLog==='function') renderLog(); document.getElementById('errbar').style.display='none'; }catch(err){ showErr(err.message||String(err)); } }; if(hb) hb.onclick=()=>{ const b=document.getElementById('errbar'); if(b) b.style.display='none'; }; },0); renderTokens(); } };
+        const lab=document.createElement('div'); lab.className='place-label'; lab.textContent=pl.name||''; el.appendChild(lab);
+        mapDiv.appendChild(el);
+      });
+
+      // Spieler-Token oben drauf
+      (state.map.tokens||[]).forEach((t,i)=>{
+        const el=document.createElement('div'); el.className='token'; el.textContent=t.label||'P'; el.style.left=(t.x||40)+'px'; el.style.top=(t.y||40)+'px'; el.draggable=true; el.ondragstart=e=>{e.dataTransfer.setData('text/plain',i)}; el.ondblclick=()=>{const n=prompt('Label ändern',t.label||''); if(n!==null){t.label=n; save(); renderTokens();}}; mapDiv.appendChild(el);
+      });
+
+      mapDiv.ondragover=e=>e.preventDefault();
+      mapDiv.ondrop=e=>{ e.preventDefault(); const r=mapDiv.getBoundingClientRect();
+        const pi=e.dataTransfer.getData('text/place'); if(pi!==''){ const i=Number(pi); if(!Number.isNaN(i) && state.map.places[i]){ state.map.places[i].x=e.clientX-r.left-18; state.map.places[i].y=e.clientY-r.top-18; save(); renderTokens(); return; } }
+        const ti=e.dataTransfer.getData('text/plain'); if(ti!==''){ const i=Number(ti); if(!Number.isNaN(i) && state.map.tokens[i]){ state.map.tokens[i].x=e.clientX-r.left-21; state.map.tokens[i].y=e.clientY-r.top-21; save(); renderTokens(); return; } }
+      };
+    }
+
+    $('#btnAddToken').onclick=()=>{
+      const list = state.players.map((p,i)=>`${i+1}) ${p.name||('Spieler '+(i+1))}`).join('\n');
+      const hint = list ? `\n\n${list}\n\nTipp: Gib eine Zahl 1–${state.players.length} für einen Spieler‑Token.` : '';
+      let inp = prompt(`Spieler/Token Label (z. B. NY, PO)${hint}`, '');
+      if(!inp) return;
+      let label = inp.trim(); let pid = null;
+      const num = parseInt(label,10);
+      if(!Number.isNaN(num) && num>=1 && num<=state.players.length){ const p=state.players[num-1]; label=(p.name||'P').slice(0,2).toUpperCase(); pid=p.id; }
+      state.map.tokens.push({label, pid, x:40, y:40}); save(); renderTokens();
+    };
+    $('#btnClearTokens').onclick=()=>{ if(confirm('Alle Marker wirklich löschen?')){ state.map.tokens=[]; save(); renderTokens(); } };
+    $('#btnSnap').onclick=()=>{ save(); renderTokens(); alert('Positionen gespeichert.'); };
+
+    // === Places (Städte & Routen) ===
+    function pid(){ return 'pl_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6); }
+
+    const placesEl = $('#placesList');
+    function renderPlaces(){
+      placesEl.innerHTML='';
+      (state.map.places||[]).forEach((pl,idx)=>{
+        if(!pl.id) pl.id = pid();
+        const det=document.createElement('details');
+        det.open = false;
+        const sum=document.createElement('summary');
+        const typePill=document.createElement('span'); typePill.className='pill type'; typePill.textContent= (pl.type==='route'?'Route':'Stadt');
+        const nameIn=document.createElement('input'); nameIn.type='text'; nameIn.value=pl.name||''; nameIn.placeholder=(pl.type==='route'?'Route-Name':'Stadt-Name'); nameIn.style.flex='1';
+        const typeSel=document.createElement('select'); typeSel.innerHTML='<option value="city">Stadt</option><option value="route">Route</option>'; typeSel.value=pl.type||'city';
+        const placeBtn=document.createElement('button'); placeBtn.className='small ghost'; placeBtn.textContent='Auf Karte setzen';
+        const delBtn=document.createElement('button'); delBtn.className='small bad'; delBtn.textContent='Entfernen';
+        const sumRow=document.createElement('div'); sumRow.className='row'; sumRow.append(typePill, nameIn, typeSel, placeBtn, delBtn);
+        sum.append(sumRow); det.append(sum);
+
+        // Body
+        const body=document.createElement('div'); body.className='body';
+        // Aktionen-Block
+        const actions=document.createElement('div'); actions.className='place-actions';
+        const mkBtn=(label,fn,enabled=true)=>{ const b=document.createElement('button'); b.className='small'+(enabled?'':' ghost'); b.textContent=label; if(enabled) b.onclick=fn; else b.disabled=true; return b; };
+        // Stadt-Buttons
+        actions.append(
+          mkBtn('Arena', ()=> addLog(`🏛️ Arena betreten – ${pl.name}`), !!pl.venues?.arena),
+          mkBtn('Café', ()=> addLog(`☕ Café besucht – ${pl.name}`), !!pl.venues?.cafe),
+          mkBtn('Mall', ()=> addLog(`🛍️ Einkaufszentrum – ${pl.name}`), !!pl.venues?.mall),
+          mkBtn('Bike', ()=> addLog(`🚲 Fahrrad-Shop – ${pl.name}`), !!pl.venues?.bike),
+          mkBtn('Casino', ()=> addLog(`🎰 Casino – ${pl.name}`), !!pl.venues?.casino)
+        );
+        if(pl.type==='route'){
+          const encList = (pl.encounters||[]).join(', ');
+          actions.append(mkBtn('Fangbare Pokémon', ()=> addLog(`🌿 Begegnungen auf ${pl.name}: ${encList||'–'}`), true));
+        }
+        body.append(actions);
+        // Interaktionen
+        const inter=document.createElement('div'); inter.className='checkrow';
+        const flags = pl.venues || {arena:false,mall:false,bike:false,casino:false,cafe:false}; pl.venues = flags;
+        ['arena','mall','bike','casino','cafe'].forEach(k=>{ const lab=document.createElement('label'); const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!flags[k]; cb.onchange=()=>{ flags[k]=cb.checked; save(); }; lab.append(cb, document.createTextNode(' '+k)); inter.append(lab); });
+        const interKV=document.createElement('div'); interKV.className='kv'; interKV.innerHTML='<label>Interaktionen</label>'; interKV.append(inter);
+        body.append(interKV);
+        
+        // Encounters (für Route)
+        const encKV=document.createElement('div'); encKV.className='kv enc';
+        const encLabel=document.createElement('label'); encLabel.textContent='Begegnungen (Route)';
+        const encTA=document.createElement('textarea'); encTA.placeholder='Ein Name pro Zeile (Pokémon)'; encTA.value=(pl.encounters||[]).join('\n'); encTA.oninput=()=>{ pl.encounters = encTA.value.split(/\n+/).map(s=>s.trim()).filter(Boolean); save(); };
+        encKV.append(encLabel, encTA); body.append(encKV);
+
+        // Ortsshop (optional)
+        const shopWrap=document.createElement('div'); shopWrap.className='kv'; const shopLbl=document.createElement('label'); shopLbl.textContent='Ortsshop'; const shopArea=document.createElement('div');
+        shopArea.className='grid'; (pl.shop||[]).forEach((it,i)=>{
+          const row=document.createElement('div'); row.className='row';
+          const n=document.createElement('input'); n.type='text'; n.placeholder='Item'; n.value=it.name||''; n.oninput=()=>{ it.name=n.value; save(); };
+          const pr=document.createElement('input'); pr.type='number'; pr.placeholder='Preis'; pr.style.width='120px'; pr.value=it.price||0; pr.oninput=()=>{ it.price=Number(pr.value||0); save(); };
+          const rm=document.createElement('button'); rm.className='small bad'; rm.textContent='Entfernen'; rm.onclick=()=>{ pl.shop.splice(i,1); save(); renderPlaces(); };
+          row.append(n, pr, rm); shopArea.append(row);
+        });
+        const addShop=document.createElement('button'); addShop.className='small'; addShop.textContent='Item hinzufügen'; addShop.onclick=()=>{ pl.shop=pl.shop||[]; pl.shop.push({name:'Neu',price:0}); save(); renderPlaces(); };
+        shopWrap.append(shopLbl, shopArea); body.append(shopWrap, addShop);
+
+        det.append(body);
+        placesEl.append(det);
+
+        // Handlers summary row
+        nameIn.oninput=()=>{ pl.name=nameIn.value; save(); // update marker label live
+          renderTokens(); };
+        typeSel.onchange=()=>{ pl.type=typeSel.value; typePill.textContent=(pl.type==='route'?'Route':'Stadt'); save(); renderTokens(); };
+        let arming=false; delBtn.onclick=()=>{ if(!arming){ arming=true; delBtn.textContent='Sicher?'; setTimeout(()=>{arming=false; delBtn.textContent='Entfernen';},1500); return; } state.map.places.splice(idx,1); save(); renderPlaces(); renderTokens(); };
+        placeBtn.onclick=()=>{ placingPlaceId=pl.id; mapDiv.style.cursor='crosshair'; alert('Klicke auf die Karte, um den Ort zu platzieren.'); };
+      });
+    }
+
+    $('#btnAddPlace').onclick=()=>{
+      const name=prompt('Name des Ortes (z. B. Azuria City, Route 5)'); if(!name) return;
+      const type=confirm('Handelt es sich um eine Route? (OK = Route, Abbrechen = Stadt)')?'route':'city';
+      state.map.places=state.map.places||[]; state.map.places.push({id:pid(), name, type, x:80, y:80, venues:{arena:false,mall:false,bike:false,casino:false,cafe:false}, encounters:[], shop:[]});
+      save(); renderPlaces(); renderTokens();
+    };
+
+    renderPlaces();
+
+    // === Rules & Shop & Lo
+    const rules=$('#rulesText'); rules.value=state.rules||''; rules.oninput=()=>{ state.rules=rules.value; save(); };
+    const shopEl=$('#shop'); function renderShop(){ shopEl.innerHTML=''; (state.shop||[]).forEach((s,i)=>{ const node=document.importNode($('#tpl-shop').content,true); const n=node.querySelector('.sname'); const p=node.querySelector('.sprice'); n.value=s.name||''; p.value=s.price||0; n.oninput=()=>{s.name=n.value; save();}; p.oninput=()=>{s.price=Number(p.value||0); save();}; node.querySelector('.remove').onclick=()=>{ state.shop.splice(i,1); save(); renderShop(); }; shopEl.appendChild(node); }); }
+    renderShop(); $('#btnAddShop').onclick=()=>{ state.shop.push({name:'Neu',price:0}); save(); renderShop(); };
+    const logEl=$('#log'); function renderLog(){ logEl.innerHTML=''; (state.log||[]).forEach((l,i)=>{ const node=document.importNode($('#tpl-log').content,true); const t=node.querySelector('.logtext'); t.value=l.text||''; t.oninput=()=>{ l.text=t.value; save(); }; node.querySelector('.remove').onclick=()=>{ state.log.splice(i,1); save(); renderLog(); }; logEl.appendChild(node); }); }
+    renderLog(); $('#btnAddLog').onclick=()=>{ state.log.push({text:''}); save(); renderLog(); };
+
+    // === Export / Import / Reset ===
+    $('#btnExport').onclick=()=>{ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='poke-dnd.json'; a.click(); };
+
+    $('#btnImport').onclick=()=>$('#fileImport').click();
+    $('#fileImport').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; const txt=await f.text(); try{ const data=JSON.parse(txt); Object.assign(state,data); save(); location.reload(); }catch(err){ alert('Ungültige JSON'); } });
+
+    $('#btnReset').onclick=()=>{
+      const btn = $('#btnReset');
+      if(!btn.dataset.armed){
+        btn.dataset.armed = '1';
+        btn.textContent = 'Wirklich ALLES löschen?';
+        btn.classList.add('warn');
+        setTimeout(()=>{ btn.dataset.armed=''; btn.textContent='Alle Daten löschen'; btn.classList.remove('warn'); }, 2500);
+        return;
+      }
+      // harter Reset (ohne Browser-Confirm)
+      try{ localStorage.removeItem('poke_dnd_state'); }catch(e){}
+      state.players=[]; state.map={url:'',tokens:[],places:[]}; state.rules=''; state.shop=[]; state.log=[];
+      save();
+      // UI sofort neu zeichnen
+      const rulesEl = $('#rulesText'); if(rulesEl) rulesEl.value='';
+      $('#mapUrl').value='';
+      renderPlayers(); setMapBg(); renderTokens(); renderShop(); renderLog();
+      // visuelles Feedback
+      btn.textContent = 'Alles gelöscht ✓';
+      btn.classList.remove('warn');
+      btn.dataset.armed='';
+    };
+
+    // === Initial ===
+    renderPlayers(); setMapBg(); renderTokens();
+  </script>
+</body>
+</html>
