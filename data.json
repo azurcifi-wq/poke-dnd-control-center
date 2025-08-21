@@ -292,7 +292,7 @@
     {
       "id": "p_melgs926_pvpq5v",
       "name": "Tham",
-      "money": 43,
+      "money": 15,
       "badges": [
         1,
         2
@@ -325,6 +325,18 @@
         {
           "name": "Meisterball",
           "img": "https://www.pokewiki.de/images/2/26/Sugimori_Meisterball.png"
+        },
+        {
+          "name": "Repel",
+          "img": "https://exburst.dev/pocket/cards/sd/cTR_10_000610_00_MUSHIYOKESUPUREI_U.webp"
+        },
+        {
+          "name": "Poke Comms",
+          "img": "https://exburst.dev/pocket/cards/sd/cTR_10_000280_00_POKEMONTSUUSHIN_U.webp"
+        },
+        {
+          "name": "Eevee Bag",
+          "img": "https://exburst.dev/pocket/cards/sd/cTR_10_000670_00_IIBUINOBAKKU_U.webp"
         }
       ],
       "team": [
@@ -369,7 +381,7 @@
     }
   ],
   "map": {
-     "url": "assets/maps/map-dnd.jpg",
+    "url": "assets/maps/map-dnd.jpg",
     "tokens": [],
     "places": []
   },
@@ -390,4 +402,3 @@
   ],
   "log": []
 }
-
