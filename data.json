@@ -292,7 +292,7 @@
     {
       "id": "p_melgs926_pvpq5v",
       "name": "Tham",
-      "money": 15,
+      "money": 25,
       "badges": [
         1,
         2
@@ -337,6 +337,14 @@
         {
           "name": "Eevee Bag",
           "img": "https://exburst.dev/pocket/cards/sd/cTR_10_000670_00_IIBUINOBAKKU_U.webp"
+        },
+        {
+          "name": "Iono x2",
+          "img": "https://exburst.dev/pocket/cards/sd/cTR_20_000420_00_NANJYAMO_SR.webp"
+        },
+        {
+          "name": "Electric Cord x2",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000620_00_EREKIKORD_U.webp"
         }
       ],
       "team": [
