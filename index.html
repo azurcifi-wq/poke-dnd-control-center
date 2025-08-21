@@ -186,6 +186,7 @@
         <button id="btnExport" class="ghost">Export (.json)</button>
         <button id="btnImport" class="ghost">Import (.json)</button>
         <input id="fileImport" type="file" accept="application/json" style="display:none" />
+        <button id="btnReload" class="ghost">Neu laden (Shared)</button><!-- NEU -->
         <button id="btnReset" class="bad">Alle Daten löschen</button>
       </div>
     </header>
@@ -434,6 +435,66 @@
     // === State ===
     const state = JSON.parse(localStorage.getItem('poke_dnd_state')||'null') || {players:[], map:{url:'',tokens:[],places:[]}, rules:'', shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}], log:[]};
     const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
+
+    // === Shared-Loader (optionale gemeinsame Startdatei) ===
+    const DEFAULT_STATE = {
+      players:[],
+      map:{url:'',tokens:[],places:[]},
+      rules:'',
+      shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}],
+      log:[]
+    };
+
+    function getParam(name){
+      try{ return new URL(location.href).searchParams.get(name); }catch(e){ return null; }
+    }
+    async function fetchJsonMaybe(url){
+      try{
+        const res = await fetch(url, {cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        return await res.json();
+      }catch(e){ return null; }
+    }
+    // „Leer?“ – wir überschreiben nur, wenn lokal wirklich noch nichts drin ist
+    function isEmptyState(s){
+      try{
+        if(!s) return true;
+        if((s.players||[]).length) return false;
+        if(s.map && (s.map.url || (s.map.places||[]).length || (s.map.tokens||[]).length)) return false;
+        if((s.log||[]).length) return false;
+        if(String(s.rules||'').trim()) return false;
+        return true;
+      }catch(e){ return true; }
+    }
+
+    /**
+     * Lädt (falls vorhanden) eine gemeinsame JSON:
+     * 1) ?data=<URL> (Query-String)
+     * 2) ./data.json (aus dem Repo)
+     * initial=true  -> nur laden, wenn lokaler State leer ist
+     * initial=false -> immer laden/überschreiben
+     */
+    async function maybeLoadShared(initial){
+      const qsUrl   = getParam('data');   // z.B. ?data=https://raw.githubusercontent.com/.../data.json
+      const repoUrl = './data.json';      // funktioniert mit GitHub Pages
+
+      let remote = null;
+      if(qsUrl)   remote = await fetchJsonMaybe(qsUrl);
+      if(!remote) remote = await fetchJsonMaybe(repoUrl);
+      if(!remote) return; // nichts zu laden
+
+      if(initial && !isEmptyState(state)) return; // lokale Daten behalten
+
+      // Remote-Stand in den bestehenden State kopieren
+      Object.assign(state, remote);
+      save();
+
+      // UI aktualisieren
+      try{ $('#mapUrl').value = state.map?.url || ''; }catch(e){}
+      renderPlayers(); setMapBg(); renderTokens(); renderPlaces();
+      if(typeof renderShop==='function') renderShop();
+      if(typeof renderLog==='function')  renderLog();
+    }
 
     // Alles neu zeichnen (ohne Reload)
     function rerenderAll(){
@@ -697,6 +758,18 @@
 
     // === Initial ===
     renderPlayers(); setMapBg(); renderTokens();
+
+    // Wenn lokal noch nichts drin ist, einmalig gemeinsame data.json / ?data=… ziehen
+    maybeLoadShared(true);
+
+    // „Neu laden (Shared)“ zwingt das Nachladen der gemeinsamen Datei
+    const reloadBtn = document.getElementById('btnReload');
+    if(reloadBtn){
+      reloadBtn.onclick = async()=>{
+        await maybeLoadShared(false);
+        alert('Shared‑Daten neu geladen.');
+      };
+    }
   </script>
 </body>
 </html>
