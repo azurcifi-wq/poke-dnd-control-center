@@ -47,6 +47,7 @@
           "steal": false
         }
       ]
+      "classImg": "assets/avatar/Schucki.png"
     },
     {
       "id": "p_melfc3x0_j3dp4f",
@@ -164,4 +165,5 @@
   ],
   "log": []
 }
+
 
