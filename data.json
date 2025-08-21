@@ -1,18 +1,197 @@
 {
   "players": [
-    {"id":"p_1","name":"Schucki","money":12,"badges":[1,2],"items":[],"team":[{"name":"Dragonir","lang":"DE","img":"","steal":true}]},
-    {"id":"p_2","name":"Tham","money":5,"badges":[1,2],"items":[],"team":[]}
+    {
+      "id": "p_melf014s_ef86ri",
+      "name": "Gamemaster Nox",
+      "money": 0,
+      "badges": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "items": [],
+      "team": [
+        {
+          "name": "Arktos",
+          "lang": "DE",
+          "img": "https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/144.png",
+          "steal": true
+        },
+        {
+          "name": "Lavados",
+          "lang": "DE",
+          "img": "https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/146.png",
+          "steal": true
+        }
+      ],
+      "avatar": "Nox"
+    },
+    {
+      "id": "p_melf7v7q_lcjyy2",
+      "name": "Schucki",
+      "money": 4,
+      "badges": [
+        1,
+        2
+      ],
+      "items": [],
+      "team": [
+        {
+          "name": "Dragonir",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/dragonair.jpg",
+          "steal": true
+        },
+        {
+          "name": "Wollock",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/dubwool.jpg",
+          "steal": false
+        },
+        {
+          "name": "Sandamer",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/sandslash.jpg",
+          "steal": false
+        },
+        {
+          "name": "Tauboga",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/pidgeot.jpg",
+          "steal": false
+        },
+        {
+          "name": "Blitza",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/jolteon.jpg",
+          "steal": false
+        },
+        {
+          "name": "Miniras",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/jangmo-o.jpg",
+          "steal": false
+        }
+      ]
+    },
+    {
+      "id": "p_melfc3x0_j3dp4f",
+      "name": "Kinume",
+      "money": 29,
+      "badges": [
+        1,
+        2
+      ],
+      "items": [],
+      "team": [
+        {
+          "name": "voltobal",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/voltorb.jpg",
+          "steal": false
+        },
+        {
+          "name": "donphan",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/donphan.jpg",
+          "steal": false
+        },
+        {
+          "name": "mogelbaum",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/sudowoodo.jpg",
+          "steal": false
+        },
+        {
+          "name": "shaymin",
+          "lang": "DE",
+          "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW-AZxC1iZP6y148Tmy9g66kUiYcZrvU_pwGWNfC9nqsY3BfIW-ZAHjOdVtmszkGSJaufvQJumeJBQmEm1OCXndFdlJgJbQSoKZhVQGlo",
+          "steal": false
+        },
+        {
+          "name": "Raichu",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/raichu.jpg",
+          "steal": false
+        },
+        {
+          "name": "Zapdos",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/zapdos.jpg",
+          "steal": true
+        }
+      ]
+    },
+    {
+      "id": "p_melffgbp_80imd6",
+      "name": "Potty",
+      "money": 10,
+      "badges": [],
+      "items": [],
+      "team": [
+        {
+          "name": "Glutexo",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/charmeleon.jpg",
+          "steal": false
+        },
+        {
+          "name": "Hundemon",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/houndoom.jpg",
+          "steal": false
+        },
+        {
+          "name": "Blacephon",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/blacephalon.jpg",
+          "steal": false
+        },
+        {
+          "name": "Flamara",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/flareon.jpg",
+          "steal": true
+        },
+        {
+          "name": "Onix",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/onix.jpg",
+          "steal": false
+        },
+        {
+          "name": "Georok",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/graveler.jpg",
+          "steal": false
+        }
+      ]
+    }
   ],
   "map": {
     "url": "",
     "tokens": [],
-    "places": [
-      {"id":"pl_1","name":"Orania City","type":"city","x":120,"y":260,
-       "venues":{"arena":true,"mall":false,"bike":true,"casino":false,"cafe":true},
-       "encounters":[],"shop":[]}
-    ]
+    "places": []
   },
-  "rules": "Levelcap 12…",
-  "shop": [{"name":"Superball","price":10},{"name":"Hyperball","price":20}],
-  "log": [{"text":"Schucki besiegt Isty 2:0 – Orden #2"}]
+  "rules": "",
+  "shop": [
+    {
+      "name": "Superball",
+      "price": 10
+    },
+    {
+      "name": "Hyperball",
+      "price": 20
+    },
+    {
+      "name": "Rote Karte",
+      "price": 5
+    }
+  ],
+  "log": []
 }
