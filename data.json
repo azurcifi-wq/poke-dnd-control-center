@@ -1,0 +1,18 @@
+{
+  "players": [
+    {"id":"p_1","name":"Schucki","money":12,"badges":[1,2],"items":[],"team":[{"name":"Dragonir","lang":"DE","img":"","steal":true}]},
+    {"id":"p_2","name":"Tham","money":5,"badges":[1,2],"items":[],"team":[]}
+  ],
+  "map": {
+    "url": "",
+    "tokens": [],
+    "places": [
+      {"id":"pl_1","name":"Orania City","type":"city","x":120,"y":260,
+       "venues":{"arena":true,"mall":false,"bike":true,"casino":false,"cafe":true},
+       "encounters":[],"shop":[]}
+    ]
+  },
+  "rules": "Levelcap 12…",
+  "shop": [{"name":"Superball","price":10},{"name":"Hyperball","price":20}],
+  "log": [{"text":"Schucki besiegt Isty 2:0 – Orden #2"}]
+}
