@@ -46,7 +46,7 @@
           "img": "https://img.pokemondb.net/artwork/large/jangmo-o.jpg",
           "steal": false
         }
-      ]
+      ],
       "classImg": "assets/avatar/Schucki.png"
     },
     {
@@ -165,5 +165,6 @@
   ],
   "log": []
 }
+
 
 
