@@ -8,7 +8,28 @@
         1,
         2
       ],
-      "items": [],
+      "items": [
+        {
+          "name": "Dragon Steal x1",
+          "img": ""
+        },
+        {
+          "name": "GS Ball",
+          "img": "https://static.wikia.nocookie.net/nintendo/images/e/e4/GSBall.png/revision/latest/thumbnail/width/360/height/360?cb=20100519211614&path-prefix=en"
+        },
+        {
+          "name": "Poke Comms",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000280_00_POKEMONTSUUSHIN_U.webp"
+        },
+        {
+          "name": "Giant Cape",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000290_00_OOKINAMANTO_U.webp"
+        },
+        {
+          "name": "Rotom Dex",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000490_00_ROTOMUZUKAN_U.webp"
+        }
+      ],
       "team": [
         {
           "name": "Dragonir",
@@ -57,7 +78,48 @@
         1,
         2
       ],
-      "items": [],
+      "items": [
+        {
+          "name": "Leuchtstein",
+          "img": "https://www.pokewiki.de/images/a/a2/Leuchtstein_Traumwelt.png"
+        },
+        {
+          "name": "Red Card",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_90_000070_00_REDCARD_C.webp"
+        },
+        {
+          "name": "Poke Com",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000290_00_OOKINAMANTO_U.webp"
+        },
+        {
+          "name": "Linkkabel",
+          "img": "https://www.pokewiki.de/images/0/0f/Itemsprite_Verbindungsschnur_Sleep.png"
+        },
+        {
+          "name": "Team Pocket Stealversuch",
+          "img": ""
+        },
+        {
+          "name": "Zappy(Legendär)",
+          "img": ""
+        },
+        {
+          "name": "Giovanni x 2",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_20_000150_00_SAKAKI_SR.webp"
+        },
+        {
+          "name": "Beulenhelm",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000300_00_GOTSUGOTSUMETTO_U.webp"
+        },
+        {
+          "name": "Meisterball",
+          "img": "https://www.pokewiki.de/images/2/26/Sugimori_Meisterball.png"
+        },
+        {
+          "name": "Team Rocket x 2",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_20_000450_00_ROCKETDANNOSHITAPPA_SR.webp"
+        }
+      ],
       "team": [
         {
           "name": "voltobal",
@@ -95,14 +157,55 @@
           "img": "https://img.pokemondb.net/artwork/large/zapdos.jpg",
           "steal": true
         }
-      ]
+      ],
+      "classImg": "assets/avatar/Kinume.png"
     },
     {
       "id": "p_melffgbp_80imd6",
       "name": "Potty",
       "money": 10,
-      "badges": [],
-      "items": [],
+      "badges": [
+        1,
+        2
+      ],
+      "items": [
+        {
+          "name": "Mythical Slab",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000190_00_MABOROSHINOSEKIBAN_U.webp"
+        },
+        {
+          "name": "Celestic Town Elder",
+          "img": "https://exburst.dev/pocket/cards/sd/cTR_20_000390_00_KANNAGITOWNNOTYOUROU_SR.webp"
+        },
+        {
+          "name": "Vespirit Spirit Orb - Wenn als Ziel gewählt -> Lenke Target auf jemand anderen",
+          "img": ""
+        },
+        {
+          "name": "Tobutz Spirit Orb - Automatisch 1 win in Bo3 (Muss am anfang des Bo3 benutzt werden)",
+          "img": ""
+        },
+        {
+          "name": "Selfes Spirit Orb - Du darfst einmal eine Aktion per DM an Gamemaster Nox senden, resultat wird mitgeteilt daraufhin kann nach wunsch aktion ausgeführt oder andere aktion im aktionschannel gemacht werden",
+          "img": ""
+        },
+        {
+          "name": "Rotom Dex",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000490_00_ROTOMUZUKAN_U.webp"
+        },
+        {
+          "name": "Silberpokal",
+          "img": "https://thumbs.dreamstime.com/b/pixel-art-silver-trophy-cup-symbol-isoliert-auf-wei%C3%9F-silber-pokal-im-stil-f%C3%BCr-den-zweiten-platz-gut-geeignet-r%C3%BCckwirkende-385696818.jpg"
+        },
+        {
+          "name": "Electrical Cord",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000620_00_EREKIKORD_U.webp"
+        },
+        {
+          "name": "Finsterstein",
+          "img": "https://www.pokewiki.de/images/d/da/Itemsprite_Finsterstein_KAPU.png"
+        }
+      ],
       "team": [
         {
           "name": "Glutexo",
@@ -140,7 +243,129 @@
           "img": "https://img.pokemondb.net/artwork/large/graveler.jpg",
           "steal": false
         }
-      ]
+      ],
+      "classImg": "assets/avatar/Potty.png"
+    },
+    {
+      "id": "p_melgoc91_hc0igm",
+      "name": "Nyem",
+      "money": 10,
+      "badges": [
+        1,
+        2
+      ],
+      "items": [],
+      "team": [
+        {
+          "name": "Amonitas",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/omanyte.jpg",
+          "steal": false
+        },
+        {
+          "name": "Eguana",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/helioptile.jpg",
+          "steal": false
+        },
+        {
+          "name": "Kabuto",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/kabuto.jpg",
+          "steal": false
+        },
+        {
+          "name": "Burmadame",
+          "lang": "DE",
+          "img": "https://archives.bulbagarden.net/media/upload/b/b7/0413Wormadam-Sandy.png",
+          "steal": false
+        },
+        {
+          "name": "Glaceon",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/glaceon.jpg",
+          "steal": false
+        }
+      ],
+      "classImg": "assets/avatar/Nyem.png"
+    },
+    {
+      "id": "p_melgs926_pvpq5v",
+      "name": "Tham",
+      "money": 43,
+      "badges": [
+        1,
+        2
+      ],
+      "items": [
+        {
+          "name": "Schwester Joy",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_20_000430_00_POKEMONCENTERNOONEESAN_SR.webp"
+        },
+        {
+          "name": "Stinkender Toter Arraskuda",
+          "img": "https://archives.bulbagarden.net/media/upload/thumb/1/1f/0846Arrokuda.png/250px-0846Arrokuda.png"
+        },
+        {
+          "name": "Glurak Schein - D Lizenz (Unbrauchbar?)",
+          "img": ""
+        },
+        {
+          "name": "Beulenhelm",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000300_00_GOTSUGOTSUMETTO_U.webp"
+        },
+        {
+          "name": "Giant Cape",
+          "img": "https://exburst.dev/pocket/cards/hd/cTR_10_000290_00_OOKINAMANTO_U.webp"
+        },
+        {
+          "name": "Persian Maske",
+          "img": ""
+        },
+        {
+          "name": "Meisterball",
+          "img": "https://www.pokewiki.de/images/2/26/Sugimori_Meisterball.png"
+        }
+      ],
+      "team": [
+        {
+          "name": "Schillok",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/wartortle.jpg",
+          "steal": false
+        },
+        {
+          "name": "Psiana",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/espeon.jpg",
+          "steal": false
+        },
+        {
+          "name": "Pixi",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/clefable.jpg",
+          "steal": false
+        },
+        {
+          "name": "Nosepass",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/nosepass.jpg",
+          "steal": false
+        },
+        {
+          "name": "Tragosso",
+          "lang": "DE",
+          "img": "https://img.pokemondb.net/artwork/large/cubone.jpg",
+          "steal": false
+        },
+        {
+          "name": "Alolan Persian",
+          "lang": "DE",
+          "img": "https://archives.bulbagarden.net/media/upload/thumb/8/8c/0053Persian-Alola.png/1280px-0053Persian-Alola.png",
+          "steal": false
+        }
+      ],
+      "classImg": "assets/avatar/Tham.png"
     }
   ],
   "map": {
@@ -165,6 +390,3 @@
   ],
   "log": []
 }
-
-
-
