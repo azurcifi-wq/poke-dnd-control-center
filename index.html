@@ -151,6 +151,20 @@
       #players .card.player > .row{flex-wrap:wrap}
       #players .card.player .grow{grid-template-columns:1fr}
     }
+    /* Klassenbild oben rechts in der Spielerkarte */
+    #players .card.player .classimg{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:96px;           /* gerne 72–120 anpassen */
+    height:auto;
+    border-radius:10px;
+    border:1px solid var(--border);
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+    }
+
+
+    
     /* Icon-Only Delete Button neben dem Namen */
     .iconbtn{width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:var(--bad); border:1px solid var(--bad); color:#fff; cursor:pointer}
     .iconbtn svg{width:18px; height:18px; fill:currentColor; display:block}
@@ -173,6 +187,9 @@
     #errbar .msg{max-width:52vw; font-size:12px; opacity:.95}
     #btnRebind{background:var(--warn); color:#111}
     #btnErrHide{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.3)}
+
+
+    
   </style>
 </head>
 <body>
@@ -522,6 +539,16 @@
         const money=frag.querySelector('.pmoney'), bcount=frag.querySelector('.bcount');
         const badges=frag.querySelector('.badges'), team=frag.querySelector('.team'), inv=frag.querySelector('.inv');
         const pid = ensureId(p); card.dataset.pid = pid;
+        // Klassenbild oben rechts (wenn vorhanden)
+        if (p.classImg) {
+        const ci = document.createElement('img');
+        ci.alt = (p.name || 'Klassenbild');
+        ci.className = 'classimg';
+        // nutzt deinen setImage()-Helper mit Proxy/Referrer-Fallback
+        setImage(ci, p.classImg);
+        card.appendChild(ci);
+        }
+
         avatar.textContent=(p.avatar||p.name||'?').slice(0,2).toUpperCase(); avatar.addEventListener('input',()=>{p.avatar=avatar.textContent; save();});
         pname.value=p.name||''; pname.addEventListener('input',()=>{p.name=pname.value; save();});
         money.value=p.money||0; money.addEventListener('input',()=>{p.money=Number(money.value||0); save();});
