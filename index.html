@@ -879,10 +879,13 @@ prev.onclick = async ()=>{
 };
 
   
-  node.querySelector('.remove').onclick = ()=>{
-     e.preventDefault(); e.stopPropagation();
-    pl.encounters.splice(idx,1);  pl.open = true; save(); renderPlaces(); renderTokens();
-  };
+node.querySelector('.remove').onclick = (e)=>{
+  e.preventDefault(); e.stopPropagation();
+  pl.encounters.splice(idx,1);
+  pl.open = true;
+  save();
+  renderPlaces(); renderTokens();
+};
 
   setImg();
   img.style.cursor='zoom-in';
@@ -988,7 +991,6 @@ body.append(actions);
     addBtn.className='small';
     addBtn.textContent='Pokémon hinzufügen';
     addBtn.onclick=()=>{
-      e.preventDefault();
       pl.open = true;  
       pl.encounters = pl.encounters || [];
       pl.encounters.push({name:'',lang:'DE',img:''});
@@ -1001,14 +1003,6 @@ body.append(actions);
 
     // Summary-Handler
     nameIn.oninput=()=>{ pl.name=nameIn.value; save(); renderTokens(); };
-    let arming=false;
-    delBtn.onclick=()=>{
-       e.preventDefault(); e.stopPropagation();
-      if(!arming){ arming=true; delBtn.textContent='Sicher?';
-        setTimeout(()=>{arming=false; delBtn.textContent='Entfernen';},1500); return; }
-      state.map.places.splice(idx,1); save(); renderPlaces(); renderTokens();
-    };
-    placeBtn.onclick=()=>{ e.preventDefault(); e.stopPropagation(); placingPlaceId=pl.id; $('#map').style.cursor='crosshair'; alert('Klicke auf die Karte, um die Route zu platzieren.'); };
   });
 }
 
