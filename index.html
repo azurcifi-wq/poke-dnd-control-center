@@ -880,7 +880,8 @@ prev.onclick = async ()=>{
 
   
   node.querySelector('.remove').onclick = ()=>{
-    pl.encounters.splice(idx,1); save(); renderPlaces(); renderTokens();
+     e.preventDefault(); e.stopPropagation();
+    pl.encounters.splice(idx,1);  pl.open = true; save(); renderPlaces(); renderTokens();
   };
 
   setImg();
@@ -896,9 +897,19 @@ function renderPlaces(){
     if(!pl.id) pl.id = pid();
     pl.type = 'route'; // erzwungen
 
-    const det=document.createElement('details');
-    det.open = false;
+ //   const det=document.createElement('details');
+ //   det.open = false;
+const det = document.createElement('details');
+// Offen-Status aus dem Place-Objekt lesen
+det.open = !!pl.open;
 
+// wenn der Nutzer auf/zu klappt -> im State merken
+det.addEventListener('toggle', () => {
+  pl.open = det.open;
+  save();
+});
+
+    
     // Summary-Zeile: "Route"-Pill, Name, Auf Karte setzen, Entfernen
     const sum=document.createElement('summary');
     const typePill=document.createElement('span');
@@ -910,7 +921,7 @@ function renderPlaces(){
     nameIn.value=pl.name||'';
     nameIn.placeholder='Route-Name';
     nameIn.style.flex='1';
-
+/*
     const placeBtn=document.createElement('button');
     placeBtn.className='small ghost';
     placeBtn.textContent='Auf Karte setzen';
@@ -918,16 +929,51 @@ function renderPlaces(){
     const delBtn=document.createElement('button');
     delBtn.className='small bad';
     delBtn.textContent='Entfernen';
-
+*/
     const sumRow=document.createElement('div');
     sumRow.className='row';
-    sumRow.append(typePill, nameIn, placeBtn, delBtn);
+    sumRow.append(typePill, nameIn);
     sum.append(sumRow);
     det.append(sum);
 
     // Body: Encounter-Liste
     const body=document.createElement('div'); body.className='body';
 
+// Aktionen-Buttons im Body
+const actions = document.createElement('div');
+actions.className = 'place-actions';
+    
+const placeBtn = document.createElement('button');
+placeBtn.type = 'button';
+placeBtn.className = 'small ghost';
+placeBtn.textContent = 'Auf Karte setzen';
+placeBtn.onclick = (e)=>{
+  e.preventDefault();
+  placingPlaceId = pl.id;
+  $('#map').style.cursor = 'crosshair';
+  alert('Klicke auf die Karte, um die Route zu platzieren.');
+};
+
+const delBtn = document.createElement('button');
+delBtn.type = 'button';
+delBtn.className = 'small bad';
+delBtn.textContent = 'Entfernen';
+let arming = false;
+delBtn.onclick = (e)=>{
+  e.preventDefault();
+  if(!arming){
+    arming = true; delBtn.textContent = 'Sicher?';
+    setTimeout(()=>{ arming=false; delBtn.textContent='Entfernen'; }, 1500);
+    return;
+  }
+  state.map.places.splice(idx,1);
+  save(); renderPlaces(); renderTokens();
+};
+
+actions.append(placeBtn, delBtn);
+body.append(actions);
+    
+    // ---- Encounter-Titel & Liste
     const encTitle=document.createElement('h4');
     encTitle.textContent='Pokémon auf der Route';
     body.append(encTitle);
@@ -942,6 +988,8 @@ function renderPlaces(){
     addBtn.className='small';
     addBtn.textContent='Pokémon hinzufügen';
     addBtn.onclick=()=>{
+      e.preventDefault();
+      pl.open = true;  
       pl.encounters = pl.encounters || [];
       pl.encounters.push({name:'',lang:'DE',img:''});
       save(); renderPlaces();
