@@ -456,7 +456,11 @@
 
     // === State ===
     const state = JSON.parse(localStorage.getItem('poke_dnd_state')||'null') || {players:[], map:{url:'',tokens:[],places:[]}, rules:'', shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}], log:[]};
-    const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
+    //const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
+    function save(){
+    localStorage.setItem('poke_dnd_state', JSON.stringify(state));
+    if (window.liveDBSave) window.liveDBSave();   // schiebt (debounced) in die Cloud
+    }
 
     // === Shared-Loader (optionale gemeinsame Startdatei) ===
     const DEFAULT_STATE = {
@@ -803,5 +807,56 @@
       };
     }
   </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // >> HIER deine echten Werte aus den Projekteinstellungen einsetzen <<
+  const firebaseConfig = {
+    apiKey:        "AIzaSyCHe0feB_FQbbDV2Ig2LUCidx_F_5EWWx0",
+    authDomain:    "dndgroup-288e6.firebaseapp.com",
+    projectId:     "dndgroup-288e6",
+    appId:         "1:701400084327:web:8164a5c5697aa8c24dc9c2",
+    storageBucket: "dndgroup-288e6.appspot.com",
+    messagingSenderId: "701400084327",
+    // Diese Zeile manuell ergänzen – URL oben in der Realtime Database kopieren:
+    databaseURL:   "https://dndgroup-288e6-default-rtdb.europe-west1.firebasedatabase.app/"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getDatabase(app);
+
+  (async () => {
+    await signInAnonymously(auth);
+
+    // Kampagnen-ID aus ?campaign=… (nutzt deine vorhandene getParam-Funktion)
+    const campaignId = (typeof getParam === 'function' && getParam('campaign')) || 'main';
+    const node = ref(db, `campaigns/${campaignId}`);
+
+    // remote -> local (live)
+    let writing = false;
+    onValue(node, snap => {
+      if (writing) return;
+      const remote = snap.val();
+      if (!remote) return;
+      Object.assign(state, remote);
+      try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+      try { rerenderAll(); } catch {}
+    });
+
+    // local -> remote (debounced), wird von save() getriggert
+    const push = () => {
+      writing = true;
+      set(node, { ...state, _updatedAt: Date.now() }).finally(() => { writing = false; });
+    };
+    window.liveDBSave = (() => { let t; return () => { clearTimeout(t); t = setTimeout(push, 400); }; })();
+
+    // Falls DB leer ist, initialen Stand hochschieben
+    setTimeout(push, 800);
+  })();
+</script>
+
 </body>
 </html>
