@@ -193,11 +193,20 @@
     #btnRebind{background:var(--warn); color:#111}
     #btnErrHide{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.3)}
 
+    /* Live-Sync aktiv: Import/Reload ausblenden (Export optional behalten) */
+.live-sync #btnImport,
+.live-sync #fileImport,
+.live-sync #btnReload { display: none !important; }
+
+/* Falls du auch Export verstecken willst, diese Zeile zusätzlich: */
+.live-sync #btnExport { display: none !important; }
+
 
     
   </style>
 </head>
 <body>
+  <body class="live-sync">
   <div class="app">
     <header>
       <div>
@@ -856,6 +865,9 @@
     // Falls DB leer ist, initialen Stand hochschieben
     setTimeout(push, 800);
   })();
+
+
+    
 </script>
 
 </body>
