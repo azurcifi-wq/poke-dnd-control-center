@@ -465,6 +465,17 @@
 
     // === State ===
     const state = JSON.parse(localStorage.getItem('poke_dnd_state')||'null') || {players:[], map:{url:'',tokens:[],places:[]}, rules:'', shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}], log:[]};
+    function normalizeState(){
+  state.map = state.map || {};
+  if (typeof state.map.url !== 'string') state.map.url = '';
+  if (!Array.isArray(state.map.tokens)) state.map.tokens = [];
+  if (!Array.isArray(state.map.places)) state.map.places = [];
+  if (!Array.isArray(state.players)) state.players = [];
+  if (!Array.isArray(state.shop)) state.shop = [];
+  if (!Array.isArray(state.log)) state.log = [];
+}
+normalizeState();
+
     //const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
     function save(){
     localStorage.setItem('poke_dnd_state', JSON.stringify(state));
@@ -522,6 +533,7 @@
 
       // Remote-Stand in den bestehenden State kopieren
       Object.assign(state, remote);
+      normalizeState();
       save();
 
       // UI aktualisieren
@@ -640,6 +652,7 @@
     });
 
     function renderTokens(){
+      normalizeState();
       mapDiv.innerHTML='';
       // Orte/Places zuerst
       (state.map.places||[]).forEach((pl,i)=>{
@@ -670,6 +683,7 @@
     }
 
     $('#btnAddToken').onclick=()=>{
+      normalizeState();
       const list = state.players.map((p,i)=>`${i+1}) ${p.name||('Spieler '+(i+1))}`).join('\n');
       const hint = list ? `\n\n${list}\n\nTipp: Gib eine Zahl 1–${state.players.length} für einen Spieler‑Token.` : '';
       let inp = prompt(`Spieler/Token Label (z. B. NY, PO)${hint}`, '');
