@@ -779,7 +779,7 @@ normalizeState();
     setTimeout(()=>{ const rb=document.getElementById('btnRebind'); const hb=document.getElementById('btnErrHide'); if(rb) rb.onclick=()=>{ try{ renderPlayers(); setMapBg(); renderTokens(); renderPlaces(); if(typeof renderShop==='function') renderShop(); if(typeof renderLog==='function') renderLog(); document.getElementById('errbar').style.display='none'; }catch(err){ showErr(err.message||String(err)); } }; if(hb) hb.onclick=()=>{ const b=document.getElementById('errbar'); if(b) b.style.display='none'; }; },0); renderTokens(); } };
         const lab=document.createElement('div'); lab.className='place-label'; lab.textContent=pl.name||''; el.appendChild(lab);
         // Mini-Tooltip mit Encounter-Bildern
-const tip=document.createElement('div');
+/*const tip=document.createElement('div');
 tip.className='enc-tooltip';
 (pl.encounters||[]).slice(0,8).forEach(enc=>{
   const im=document.createElement('img');
@@ -789,7 +789,20 @@ tip.className='enc-tooltip';
   tip.appendChild(im);
 });
 el.appendChild(tip);
+*/
+        const tip = document.createElement('div');
+tip.className = 'enc-tooltip';
+(pl.encounters||[]).slice(0,8).forEach(enc=>{
+  const im = document.createElement('img');
+  im.alt = enc.name || '';
+  tip.appendChild(im);
 
+  (async ()=>{
+    const src = enc.img || await ensureEnglishAndGetImage(enc.name, enc.lang||'DE');
+    if (src) setImage(im, src);
+  })();
+});
+el.appendChild(tip);
         mapDiv.appendChild(el);
       });
 
@@ -925,6 +938,7 @@ function renderPlaces(){
     body.append(encWrap);
 
     const addBtn=document.createElement('button');
+    addBtn.type = 'button';
     addBtn.className='small';
     addBtn.textContent='Pokémon hinzufügen';
     addBtn.onclick=()=>{
@@ -941,11 +955,12 @@ function renderPlaces(){
     nameIn.oninput=()=>{ pl.name=nameIn.value; save(); renderTokens(); };
     let arming=false;
     delBtn.onclick=()=>{
+       e.preventDefault(); e.stopPropagation();
       if(!arming){ arming=true; delBtn.textContent='Sicher?';
         setTimeout(()=>{arming=false; delBtn.textContent='Entfernen';},1500); return; }
       state.map.places.splice(idx,1); save(); renderPlaces(); renderTokens();
     };
-    placeBtn.onclick=()=>{ placingPlaceId=pl.id; $('#map').style.cursor='crosshair'; alert('Klicke auf die Karte, um die Route zu platzieren.'); };
+    placeBtn.onclick=()=>{ e.preventDefault(); e.stopPropagation(); placingPlaceId=pl.id; $('#map').style.cursor='crosshair'; alert('Klicke auf die Karte, um die Route zu platzieren.'); };
   });
 }
 
