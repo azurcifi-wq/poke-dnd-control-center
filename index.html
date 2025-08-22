@@ -467,6 +467,66 @@
     const guessMon=(n,lang)=>{const en=slugify(toEn(n,lang));return en?`https://img.pokemondb.net/artwork/large/${en}.jpg`:''};
     const guessItem=n=>{n=String(n||'').trim(); if(!n) return ''; const k=n.toLowerCase(); const slug=slugify(deItemToEn[k]||n); return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${slug}.png`};
 
+// --- Auto-Übersetzung DE -> EN (via PokeAPI) + Cache ---
+const MON_EN_CACHE_KEY = 'mon_en_cache_v1';
+let monEnCache = {};
+try { monEnCache = JSON.parse(localStorage.getItem(MON_EN_CACHE_KEY) || '{}'); } catch(e){}
+const saveMonCache = ()=>{ try{ localStorage.setItem(MON_EN_CACHE_KEY, JSON.stringify(monEnCache)); }catch(e){} };
+
+/**
+ * Sucht für einen deutschen Pokémon-Namen den EN-Slug über die PokeAPI.
+ * - cached Ergebnisse in localStorage (monEnCache)
+ * - lädt den Species-Index nur einmal (~1 Request), dann die Details
+ *   bis zum Treffer (ein paar Requests; danach dauerhaft aus Cache)
+ */
+async function lookupEnglishViaPokeAPI(deName){
+  const key = String(deName||'').trim().toLowerCase();
+  if (!key) return '';
+
+  // 1) Cache?
+  if (monEnCache[key]) return monEnCache[key];
+
+  try{
+    // 2) Species-Index einmalig laden
+    if (!window._speciesIdx) {
+      const res = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=20000');
+      const data = await res.json();
+      window._speciesIdx = (data && data.results) || [];
+    }
+
+    // 3) Durchgehen bis zum Treffer (enthält mehrsprachen-Namen)
+    for (const s of window._speciesIdx){
+      const d = await fetch(s.url).then(r=>r.json());
+      const de = (d.names||[]).find(n => n.language?.name === 'de');
+      if (de && String(de.name||'').trim().toLowerCase() === key){
+        monEnCache[key] = d.name;            // EN-Slug (z.B. "purrloin")
+        saveMonCache();
+        return d.name;
+      }
+    }
+  }catch(e){ /* still, no crash */ }
+
+  return '';
+}
+
+/** Liefert die Artwork-URL – bei DE wird erst auf EN übersetzt. */
+async function ensureEnglishAndGetImage(name, lang){
+  if(!name) return '';
+  let slug = '';
+  if (lang === 'DE'){
+    const k = name.trim().toLowerCase();
+    // 1) kleine eingebaute Map zuerst probieren
+    slug = deToEn[k] || '';
+    // 2) sonst PokeAPI-Übersetzung
+    if(!slug) slug = await lookupEnglishViaPokeAPI(name);
+  } else {
+    slug = slugify(name);
+  }
+  return slug ? `https://img.pokemondb.net/artwork/large/${slug}.jpg` : '';
+}
+
+    
+
     function setImage(el, url){
       if(!url){ el.removeAttribute('src'); return; }
       try{ el.referrerPolicy = 'no-referrer'; }catch(e){}
@@ -664,7 +724,8 @@ normalizeState();
       name.value=m.name||''; name.oninput=()=>{m.name=name.value; save();};
       lang.value=m.lang||'DE'; lang.onchange=()=>{m.lang=lang.value; save();};
       url.value=m.img||''; url.oninput=()=>{m.img=url.value; setImg(); save();};
-      prev.onclick=()=>{ if(!url.value && name.value){ const g=guessMon(name.value, lang.value); if(g){ m.img=g; url.value=g; setImg(); save(); return; } } setImg(); };
+     // prev.onclick=()=>{ if(!url.value && name.value){ const g=guessMon(name.value, lang.value); if(g){ m.img=g; url.value=g; setImg(); save(); return; } } setImg(); };
+      prev.onclick = async ()=> {if(!url.value && name.value){ const g = await ensureEnglishAndGetImage(name.value, lang.value); if(g){ m.img=g; url.value=g; setImg(); save(); return; }}  setImg(); };
       node.querySelector('.remove').onclick=()=>{ player.team.splice(idx,1); save(); renderPlayers(); };
       steal.classList.toggle('on', !!m.steal); steal.onclick=()=>{ m.steal=!m.steal; steal.classList.toggle('on', m.steal); save(); };
       setImg(); img.style.cursor='zoom-in'; img.onclick=()=>{ if(m.img){ openLightbox(m.img, m.name||''); } }; return node;
@@ -788,14 +849,23 @@ function renderEncounterRow(pl, idx){
   url.value = enc.img||'';
   url.oninput = ()=>{ enc.img = url.value; setImg(); save(); };
 
-  prev.onclick = ()=>{
+/*  prev.onclick = ()=>{
     if(!url.value && name.value){
       const g = guessMon(name.value, lang.value);
       if(g){ enc.img = g; url.value = g; setImg(); save(); return; }
     }
     setImg();
   };
+*/
+prev.onclick = async ()=>{
+  if(!url.value && name.value){
+    const g = await ensureEnglishAndGetImage(name.value, lang.value);
+    if(g){ enc.img=g; url.value=g; setImg(); save(); return; }
+  }
+  setImg();
+};
 
+  
   node.querySelector('.remove').onclick = ()=>{
     pl.encounters.splice(idx,1); save(); renderPlaces(); renderTokens();
   };
