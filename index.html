@@ -748,7 +748,57 @@ normalizeState();
     $('#btnAddPlayer').onclick=()=>{ state.players.push({id:newId(), name:'',money:0,badges:[],items:[],team:[]}); save(); renderPlayers(); };
 
     // === Map ===
-    const mapDiv=$('#map'); function setMapBg(){ const u=state.map.url; const src = !u ? '' : (u.startsWith('data:') ? u : prox(u)); mapDiv.style.backgroundImage = u?`url(${src})`:'none'; }
+    const mapDiv=$('#map'); 
+
+    // --- Normalisierte Positions-Helfer (auf das angezeigte Bild, nicht den Container) ---
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+
+function getMapLayout(){
+  const rect = mapDiv.getBoundingClientRect();
+  const cw = rect.width, ch = rect.height;                // Container
+  const iw = state.map?.meta?.w || cw;                    // Bild (natural)
+  const ih = state.map?.meta?.h || ch;
+  const scale = Math.min(cw/iw, ch/ih);                   // background-size: contain
+  const dw = iw*scale, dh = ih*scale;                     // angezeigte Bildgröße
+  const ox = (cw - dw)/2, oy = (ch - dh)/2;               // Offsets (Ränder)
+  return {cw,ch,iw,ih,scale,dw,dh,ox,oy};
+}
+
+function pointPxToPct(px, py){
+  const L = getMapLayout();
+  const nx = clamp01((px - L.ox)/L.dw);
+  const ny = clamp01((py - L.oy)/L.dh);
+  return {x:nx, y:ny};
+}
+function pointPctToPx(nx, ny){
+  const L = getMapLayout();
+  return {x: L.ox + nx*L.dw, y: L.oy + ny*L.dh};
+}
+
+async function loadMapMeta(url){
+  return await new Promise(r=>{
+    const img = new Image();
+    img.onload  = ()=> r({w: img.naturalWidth, h: img.naturalHeight});
+    img.onerror = ()=> r(null);
+    img.src = url;
+  });
+}
+async function setMapBg(){
+  const u = state.map.url;
+  const src = !u ? '' : (u.startsWith('data:') ? u : prox(u));
+  mapDiv.style.backgroundImage = u ? `url(${src})` : 'none';
+
+  // Bildmaße laden und merken (für saubere Prozent-Umrechnung)
+  if(u){
+    const meta = await loadMapMeta(src);
+    if(meta){ state.map.meta = meta; save(); }
+  }
+  renderTokens(); // nach evtl. neuem Layout direkt neu positionieren
+}
+
+    
+    
+   // function setMapBg(){ const u=state.map.url; const src = !u ? '' : (u.startsWith('data:') ? u : prox(u)); mapDiv.style.backgroundImage = u?`url(${src})`:'none'; }
     $('#btnSetMap').onclick = ()=>{ const v=$('#mapUrl').value.trim(); if(!v){ alert('Bitte eine Bild‑URL einfügen.'); return; } state.map.url=v; save(); setMapBg(); };
     $('#btnUploadMap').onclick=()=>$('#mapFile').click();
     $('#mapFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ state.map.url = ev.target.result; save(); setMapBg(); }; r.readAsDataURL(f); });
@@ -758,65 +808,127 @@ normalizeState();
     // Orte auf Karte setzen Modus
     let placingPlaceId=null;
     mapDiv.addEventListener('click', e=>{
-      if(placingPlaceId){ const r=mapDiv.getBoundingClientRect(); const pl=state.map.places.find(p=>p.id===placingPlaceId); if(pl){ pl.x=e.clientX-r.left-18; pl.y=e.clientY-r.top-18; save(); renderTokens(); }
-        placingPlaceId=null; mapDiv.style.cursor='default'; }
+ if(placingPlaceId){
+  const r = mapDiv.getBoundingClientRect();
+  const px = e.clientX - r.left;
+  const py = e.clientY - r.top;
+  const pl = state.map.places.find(p=>p.id===placingPlaceId);
+  if(pl){
+    const {x, y} = pointPxToPct(px, py);
+    pl.xp = x; pl.yp = y;            // NEU: Prozent speichern
+    save(); renderTokens();
+  }
+  placingPlaceId = null;
+  mapDiv.style.cursor = 'default';
+}
+      //     if(placingPlaceId){ const r=mapDiv.getBoundingClientRect(); const pl=state.map.places.find(p=>p.id===placingPlaceId); if(pl){ pl.x=e.clientX-r.left-18; pl.y=e.clientY-r.top-18; save(); renderTokens(); }
+ //       placingPlaceId=null; mapDiv.style.cursor='default'; }
     });
 
-    function renderTokens(){
-      normalizeState();
-      mapDiv.innerHTML='';
-      // Orte/Places zuerst
-      (state.map.places||[]).forEach((pl,i)=>{
-        const el=document.createElement('div');
-        el.className='place '+(pl.type||'city');
-        el.title=pl.name||'';
-        el.style.left=(pl.x||60)+'px';
-        el.style.top=(pl.y||60)+'px';
-        el.draggable=true;
-        el.ondragstart=e=>{ e.dataTransfer.setData('text/place', i); };
-        el.ondblclick=()=>{ const n=prompt('Ort umbenennen', pl.name||''); if(n!==null){ pl.name=n; save(); renderPlaces();
-    // Fehlerbar-Buttons
-    setTimeout(()=>{ const rb=document.getElementById('btnRebind'); const hb=document.getElementById('btnErrHide'); if(rb) rb.onclick=()=>{ try{ renderPlayers(); setMapBg(); renderTokens(); renderPlaces(); if(typeof renderShop==='function') renderShop(); if(typeof renderLog==='function') renderLog(); document.getElementById('errbar').style.display='none'; }catch(err){ showErr(err.message||String(err)); } }; if(hb) hb.onclick=()=>{ const b=document.getElementById('errbar'); if(b) b.style.display='none'; }; },0); renderTokens(); } };
-        const lab=document.createElement('div'); lab.className='place-label'; lab.textContent=pl.name||''; el.appendChild(lab);
-        // Mini-Tooltip mit Encounter-Bildern
-/*const tip=document.createElement('div');
-tip.className='enc-tooltip';
-(pl.encounters||[]).slice(0,8).forEach(enc=>{
-  const im=document.createElement('img');
-  im.alt = enc.name || '';
-  const src = enc.img || guessMon(enc.name, enc.lang||'DE');
-  if(src) setImage(im, src);
-  tip.appendChild(im);
-});
-el.appendChild(tip);
-*/
-        const tip = document.createElement('div');
-tip.className = 'enc-tooltip';
-(pl.encounters||[]).slice(0,8).forEach(enc=>{
-  const im = document.createElement('img');
-  im.alt = enc.name || '';
-  tip.appendChild(im);
+function renderTokens(){
+  normalizeState();
+  mapDiv.innerHTML='';
 
-  (async ()=>{
-    const src = enc.img || await ensureEnglishAndGetImage(enc.name, enc.lang||'DE');
-    if (src) setImage(im, src);
-  })();
-});
-el.appendChild(tip);
-        mapDiv.appendChild(el);
-      });
-
-      // Spieler-Token oben drauf
-      (state.map.tokens||[]).forEach((t,i)=>{
-        const el=document.createElement('div'); el.className='token'; el.textContent=t.label||'P'; el.style.left=(t.x||40)+'px'; el.style.top=(t.y||40)+'px'; el.draggable=true; el.ondragstart=e=>{e.dataTransfer.setData('text/plain',i)}; el.ondblclick=()=>{const n=prompt('Label ändern',t.label||''); if(n!==null){t.label=n; save(); renderTokens();}}; mapDiv.appendChild(el);
-      });
-
-      mapDiv.ondragover=e=>e.preventDefault();
-      mapDiv.ondrop=e=>{ e.preventDefault(); const r=mapDiv.getBoundingClientRect();
-        const pi=e.dataTransfer.getData('text/place'); if(pi!==''){ const i=Number(pi); if(!Number.isNaN(i) && state.map.places[i]){ state.map.places[i].x=e.clientX-r.left-18; state.map.places[i].y=e.clientY-r.top-18; save(); renderTokens(); return; } }
-        const ti=e.dataTransfer.getData('text/plain'); if(ti!==''){ const i=Number(ti); if(!Number.isNaN(i) && state.map.tokens[i]){ state.map.tokens[i].x=e.clientX-r.left-21; state.map.tokens[i].y=e.clientY-r.top-21; save(); renderTokens(); return; } }
-      };
+  // --- Places (36x36) ---
+  (state.map.places||[]).forEach((pl,i)=>{
+    // Migration: alte Pixel -> Prozent (einmalig)
+    if (pl.xp == null || pl.yp == null){
+      const centerX = (pl.x ?? 60) + 18;
+      const centerY = (pl.y ?? 60) + 18;
+      const pct = pointPxToPct(centerX, centerY);
+      pl.xp = pct.x; pl.yp = pct.y;
+      delete pl.x; delete pl.y; save();
     }
+
+    const pt = pointPctToPx(pl.xp, pl.yp);
+    const el = document.createElement('div');
+    el.className = 'place ' + (pl.type||'city');
+    el.title = pl.name || '';
+    el.style.left = (pt.x - 18) + 'px';
+    el.style.top  = (pt.y - 18) + 'px';
+    el.draggable = true;
+    el.ondragstart = e => { e.dataTransfer.setData('text/place', String(i)); };
+    el.ondblclick  = () => {
+      const n = prompt('Ort umbenennen', pl.name||'');
+      if(n !== null){ pl.name = n; save(); renderPlaces(); renderTokens(); }
+    };
+
+    // Label
+    const lab = document.createElement('div');
+    lab.className = 'place-label';
+    lab.textContent = pl.name || '';
+    el.appendChild(lab);
+
+    // Mini-Galerie (Tooltip)
+    const tip = document.createElement('div');
+    tip.className = 'enc-tooltip';
+    (pl.encounters||[]).slice(0,8).forEach(enc=>{
+      const im = document.createElement('img');
+      im.alt = enc.name || '';
+      tip.appendChild(im);
+      (async ()=>{
+        const src = enc.img || await ensureEnglishAndGetImage(enc.name, enc.lang||'DE');
+        if (src) setImage(im, src);
+      })();
+    });
+    el.appendChild(tip);
+
+    mapDiv.appendChild(el);
+  });
+
+  // --- Spieler-Token (42x42) ---
+  (state.map.tokens||[]).forEach((t,i)=>{
+    if (t.xp == null || t.yp == null){
+      const cx = (t.x ?? 40) + 21;
+      const cy = (t.y ?? 40) + 21;
+      const pct = pointPxToPct(cx, cy);
+      t.xp = pct.x; t.yp = pct.y;
+      delete t.x; delete t.y; save();
+    }
+
+    const pt = pointPctToPx(t.xp, t.yp);
+    const el = document.createElement('div');
+    el.className = 'token';
+    el.textContent = t.label || 'P';
+    el.style.left = (pt.x - 21) + 'px';
+    el.style.top  = (pt.y - 21) + 'px';
+    el.draggable  = true;
+    el.ondragstart = e => { e.dataTransfer.setData('text/plain', String(i)); };
+    el.ondblclick  = () => {
+      const n = prompt('Label ändern', t.label||'');
+      if(n !== null){ t.label = n; save(); renderTokens(); }
+    };
+    mapDiv.appendChild(el);
+  });
+
+  // Drop-Ziele
+  mapDiv.ondragover = e => e.preventDefault();
+  mapDiv.ondrop = e => {
+    e.preventDefault();
+    const r  = mapDiv.getBoundingClientRect();
+    const px = e.clientX - r.left;
+    const py = e.clientY - r.top;
+    const pc = pointPxToPct(px, py);
+
+    const pi = e.dataTransfer.getData('text/place');
+    if (pi !== ''){
+      const i = Number(pi);
+      if (!Number.isNaN(i) && state.map.places[i]){
+        state.map.places[i].xp = pc.x; state.map.places[i].yp = pc.y;
+        save(); renderTokens(); return;
+      }
+    }
+
+    const ti = e.dataTransfer.getData('text/plain');
+    if (ti !== ''){
+      const i = Number(ti);
+      if (!Number.isNaN(i) && state.map.tokens[i]){
+        state.map.tokens[i].xp = pc.x; state.map.tokens[i].yp = pc.y;
+        save(); renderTokens(); return;
+      }
+    }
+  };
+}
 
     $('#btnAddToken').onclick=()=>{
       normalizeState();
@@ -1135,6 +1247,9 @@ $('#btnAddPlace').onclick=()=>{
 
     // === Initial ===
     renderPlayers(); setMapBg(); renderTokens();
+
+    // Bei Fenstergröße neu positionieren
+window.addEventListener('resize', renderTokens);
 
     // Wenn lokal noch nichts drin ist, einmalig gemeinsame data.json / ?data=… ziehen
     maybeLoadShared(true);
