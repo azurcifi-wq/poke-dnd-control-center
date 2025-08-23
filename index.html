@@ -1264,54 +1264,56 @@ window.addEventListener('resize', renderTokens);
     }
   </script>
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // >> HIER deine echten Werte aus den Projekteinstellungen einsetzen <<
-  const firebaseConfig = {
-    apiKey:        "AIzaSyCHe0feB_FQbbDV2Ig2LUCidx_F_5EWWx0",
-    authDomain:    "dndgroup-288e6.firebaseapp.com",
-    projectId:     "dndgroup-288e6",
-    appId:         "1:701400084327:web:8164a5c5697aa8c24dc9c2",
-    storageBucket: "dndgroup-288e6.appspot.com",
-    messagingSenderId: "701400084327",
-    // Diese Zeile manuell ergänzen – URL oben in der Realtime Database kopieren:
-    databaseURL:   "https://dndgroup-288e6-default-rtdb.europe-west1.firebasedatabase.app/"
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+
+(async () => {
+  await signInAnonymously(auth);
+
+  const campaignId = (typeof getParam === 'function' && getParam('campaign')) || 'main';
+  const node = ref(db, `campaigns/${campaignId}`);
+
+  let writing = false;
+  let gotFirstRemote = false;
+
+  const push = () => {
+    writing = true;
+    set(node, { ...state, _updatedAt: Date.now() })
+      .finally(() => { writing = false; });
   };
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getDatabase(app);
+  onValue(node, snap => {
+    if (writing) return;                    // eigene Writes nicht sofort wieder einlesen
+    const remote = snap.val();
+    gotFirstRemote = true;
 
-  (async () => {
-    await signInAnonymously(auth);
-
-    // Kampagnen-ID aus ?campaign=… (nutzt deine vorhandene getParam-Funktion)
-    const campaignId = (typeof getParam === 'function' && getParam('campaign')) || 'main';
-    const node = ref(db, `campaigns/${campaignId}`);
-
-    // remote -> local (live)
-    let writing = false;
-    onValue(node, snap => {
-      if (writing) return;
-      const remote = snap.val();
-      if (!remote) return;
+    if (remote) {
       Object.assign(state, remote);
+      normalizeState();
       try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
       try { rerenderAll(); } catch {}
-    });
+    } else {
+      // DB ist leer -> lokalen Stand einmalig hochladen
+      push();
+    }
+  });
 
-    // local -> remote (debounced), wird von save() getriggert
-    const push = () => {
-      writing = true;
-      set(node, { ...state, _updatedAt: Date.now() }).finally(() => { writing = false; });
+  // Debounced local -> remote, aber erst NACH dem ersten Remote-Snapshot
+  window.liveDBSave = (() => {
+    let t;
+    return () => {
+      clearTimeout(t);
+      if (!gotFirstRemote) return;          // vor dem ersten Snapshot nichts hochschieben
+      t = setTimeout(push, 400);
     };
-    window.liveDBSave = (() => { let t; return () => { clearTimeout(t); t = setTimeout(push, 400); }; })();
-
-    // Falls DB leer ist, initialen Stand hochschieben
-    setTimeout(push, 800);
   })();
+})();
+
 
 
     
