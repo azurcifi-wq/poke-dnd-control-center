@@ -587,10 +587,25 @@ function normalizeState(){
 normalizeState();
 
     //const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
-    function save(){
-    localStorage.setItem('poke_dnd_state', JSON.stringify(state));
-    if (window.liveDBSave) window.liveDBSave();   // schiebt (debounced) in die Cloud
+function save(){
+  // Zeitstempel für Konfliktlösung
+  state._updatedAt = Date.now();
+
+  // optional: mini-Backup (1x pro Minute)
+  try {
+    const last = Number(localStorage.getItem('poke_backup_last')||0);
+    if (Date.now() - last > 60*1000) {
+      const key = 'poke_backup_'+new Date().toISOString().slice(0,16); // minütlich
+      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem('poke_backup_last', String(Date.now()));
+      // (Aufräumen könntest du später machen: nur die letzten 20 behalten)
     }
+  } catch {}
+
+  try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+  if (window.liveDBSave) window.liveDBSave();
+}
+
 
     // === Shared-Loader (optionale gemeinsame Startdatei) ===
     const DEFAULT_STATE = {
@@ -1294,15 +1309,35 @@ window.addEventListener('resize', renderTokens);
     let writing = false;
     let gotFirstRemote = false;
 
-    onValue(node, snap => {
-      gotFirstRemote = true;
-      const remote = snap.val();
-      if (writing || !remote) return;
+let writing = false;
 
-      Object.assign(state, remote);
-      try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
-      try { rerenderAll(); } catch {}
-    });
+onValue(node, snap => {
+  if (writing) return;
+
+  const remote = snap.val();
+
+  // 1) Leeren Remote-Stand ignorieren
+  if (!remote || Object.keys(remote).length === 0) return;
+
+  const rT = Number(remote._updatedAt || 0);
+  const lT = Number(state._updatedAt || 0);
+
+  // 2) Wenn Lokal neuer/eher befüllt -> lokalen Stand behalten und zurückschieben
+  const remoteHasNoPlaces = !(remote.map && Array.isArray(remote.map.places) && remote.map.places.length);
+  const localHasPlaces    = (state.map && Array.isArray(state.map.places) && state.map.places.length);
+
+  if (rT <= lT || (remoteHasNoPlaces && localHasPlaces)) {
+    // lokalen (besseren) Stand nach Remote pushen
+    if (window.liveDBSave) window.liveDBSave();
+    return;
+  }
+
+  // 3) Remote ist neuer → übernehmen
+  Object.assign(state, remote);
+  try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+  try { rerenderAll(); } catch {}
+});
+
 
     // local -> remote (debounced), wird von save() getriggert
     const push = () => {
