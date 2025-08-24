@@ -1131,86 +1131,7 @@ body.append(actions);
     // Summary-Handler
     nameIn.oninput=()=>{ pl.name=nameIn.value; save(); renderTokens(); };
   });
-}
-
-
-
-
-
-    
-/*    const placesEl = $('#placesList');
-    function renderPlaces(){
-      placesEl.innerHTML='';
-      (state.map.places||[]).forEach((pl,idx)=>{
-        if(!pl.id) pl.id = pid();
-        const det=document.createElement('details');
-        det.open = false;
-        const sum=document.createElement('summary');
-        const typePill=document.createElement('span'); typePill.className='pill type'; typePill.textContent= (pl.type==='route'?'Route':'Stadt');
-        const nameIn=document.createElement('input'); nameIn.type='text'; nameIn.value=pl.name||''; nameIn.placeholder=(pl.type==='route'?'Route-Name':'Stadt-Name'); nameIn.style.flex='1';
-        const typeSel=document.createElement('select'); typeSel.innerHTML='<option value="city">Stadt</option><option value="route">Route</option>'; typeSel.value=pl.type||'city';
-        const placeBtn=document.createElement('button'); placeBtn.className='small ghost'; placeBtn.textContent='Auf Karte setzen';
-        const delBtn=document.createElement('button'); delBtn.className='small bad'; delBtn.textContent='Entfernen';
-        const sumRow=document.createElement('div'); sumRow.className='row'; sumRow.append(typePill, nameIn, typeSel, placeBtn, delBtn);
-        sum.append(sumRow); det.append(sum);
-
-        // Body
-        const body=document.createElement('div'); body.className='body';
-        // Aktionen-Block
-        const actions=document.createElement('div'); actions.className='place-actions';
-        const mkBtn=(label,fn,enabled=true)=>{ const b=document.createElement('button'); b.className='small'+(enabled?'':' ghost'); b.textContent=label; if(enabled) b.onclick=fn; else b.disabled=true; return b; };
-        // Stadt-Buttons
-        actions.append(
-          mkBtn('Arena', ()=> addLog(`🏛️ Arena betreten – ${pl.name}`), !!pl.venues?.arena),
-          mkBtn('Café', ()=> addLog(`☕ Café besucht – ${pl.name}`), !!pl.venues?.cafe),
-          mkBtn('Mall', ()=> addLog(`🛍️ Einkaufszentrum – ${pl.name}`), !!pl.venues?.mall),
-          mkBtn('Bike', ()=> addLog(`🚲 Fahrrad-Shop – ${pl.name}`), !!pl.venues?.bike),
-          mkBtn('Casino', ()=> addLog(`🎰 Casino – ${pl.name}`), !!pl.venues?.casino)
-        );
-        if(pl.type==='route'){
-          const encList = (pl.encounters||[]).join(', ');
-          actions.append(mkBtn('Fangbare Pokémon', ()=> addLog(`🌿 Begegnungen auf ${pl.name}: ${encList||'–'}`), true));
-        }
-        body.append(actions);
-        // Interaktionen
-        const inter=document.createElement('div'); inter.className='checkrow';
-        const flags = pl.venues || {arena:false,mall:false,bike:false,casino:false,cafe:false}; pl.venues = flags;
-        ['arena','mall','bike','casino','cafe'].forEach(k=>{ const lab=document.createElement('label'); const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!flags[k]; cb.onchange=()=>{ flags[k]=cb.checked; save(); }; lab.append(cb, document.createTextNode(' '+k)); inter.append(lab); });
-        const interKV=document.createElement('div'); interKV.className='kv'; interKV.innerHTML='<label>Interaktionen</label>'; interKV.append(inter);
-        body.append(interKV);
-        
-        // Encounters (für Route)
-        const encKV=document.createElement('div'); encKV.className='kv enc';
-        const encLabel=document.createElement('label'); encLabel.textContent='Begegnungen (Route)';
-        const encTA=document.createElement('textarea'); encTA.placeholder='Ein Name pro Zeile (Pokémon)'; encTA.value=(pl.encounters||[]).join('\n'); encTA.oninput=()=>{ pl.encounters = encTA.value.split(/\n+/).map(s=>s.trim()).filter(Boolean); save(); };
-        encKV.append(encLabel, encTA); body.append(encKV);
-
-        // Ortsshop (optional)
-        const shopWrap=document.createElement('div'); shopWrap.className='kv'; const shopLbl=document.createElement('label'); shopLbl.textContent='Ortsshop'; const shopArea=document.createElement('div');
-        shopArea.className='grid'; (pl.shop||[]).forEach((it,i)=>{
-          const row=document.createElement('div'); row.className='row';
-          const n=document.createElement('input'); n.type='text'; n.placeholder='Item'; n.value=it.name||''; n.oninput=()=>{ it.name=n.value; save(); };
-          const pr=document.createElement('input'); pr.type='number'; pr.placeholder='Preis'; pr.style.width='120px'; pr.value=it.price||0; pr.oninput=()=>{ it.price=Number(pr.value||0); save(); };
-          const rm=document.createElement('button'); rm.className='small bad'; rm.textContent='Entfernen'; rm.onclick=()=>{ pl.shop.splice(i,1); save(); renderPlaces(); };
-          row.append(n, pr, rm); shopArea.append(row);
-        });
-        const addShop=document.createElement('button'); addShop.className='small'; addShop.textContent='Item hinzufügen'; addShop.onclick=()=>{ pl.shop=pl.shop||[]; pl.shop.push({name:'Neu',price:0}); save(); renderPlaces(); };
-        shopWrap.append(shopLbl, shopArea); body.append(shopWrap, addShop);
-
-        det.append(body);
-        placesEl.append(det);
-
-        // Handlers summary row
-        nameIn.oninput=()=>{ pl.name=nameIn.value; save(); // update marker label live
-          renderTokens(); };
-        typeSel.onchange=()=>{ pl.type=typeSel.value; typePill.textContent=(pl.type==='route'?'Route':'Stadt'); save(); renderTokens(); };
-        let arming=false; delBtn.onclick=()=>{ if(!arming){ arming=true; delBtn.textContent='Sicher?'; setTimeout(()=>{arming=false; delBtn.textContent='Entfernen';},1500); return; } state.map.places.splice(idx,1); save(); renderPlaces(); renderTokens(); };
-        placeBtn.onclick=()=>{ placingPlaceId=pl.id; mapDiv.style.cursor='crosshair'; alert('Klicke auf die Karte, um den Ort zu platzieren.'); };
-      });
-    }
-*/
-
-    
+}    
 $('#btnAddPlace').onclick=()=>{
   const name=prompt('Name der Route'); if(!name) return;
   state.map.places = state.map.places || [];
@@ -1278,12 +1199,11 @@ window.addEventListener('resize', renderTokens);
       };
     }
   </script>
- <script type="module">
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // Deine Config (wie vorher)
   const firebaseConfig = {
     apiKey:        "AIzaSyCHe0feB_FQbbDV2Ig2LUCidx_F_5EWWx0",
     authDomain:    "dndgroup-288e6.firebaseapp.com",
@@ -1301,57 +1221,52 @@ window.addEventListener('resize', renderTokens);
   (async () => {
     await signInAnonymously(auth);
 
-    // Kampagnen-ID aus ?campaign=… (nutzt deine vorhandene getParam-Funktion)
     const campaignId = (typeof getParam === 'function' && getParam('campaign')) || 'main';
     const node = ref(db, `campaigns/${campaignId}`);
 
-    // remote -> local (live)
-    let writing = false;
-    let gotFirstRemote = false;
+    // Flags
+    let writing   = false;  // schützt vor Echo beim Zurückschreiben
+    let sawRemote = false;  // haben wir schon etwas aus der DB gesehen?
 
-let writing = false;
+    // remote -> local (live) mit Konfliktlösung
+    onValue(node, snap => {
+      if (writing) return;
 
-onValue(node, snap => {
-  if (writing) return;
+      const remote = snap.val();
+      if (!remote || Object.keys(remote).length === 0) return;
 
-  const remote = snap.val();
+      sawRemote = true;
 
-  // 1) Leeren Remote-Stand ignorieren
-  if (!remote || Object.keys(remote).length === 0) return;
+      const rT = Number(remote._updatedAt || 0);
+      const lT = Number(state._updatedAt || 0);
 
-  const rT = Number(remote._updatedAt || 0);
-  const lT = Number(state._updatedAt || 0);
+      const remoteHasNoPlaces = !(remote.map && Array.isArray(remote.map.places) && remote.map.places.length);
+      const localHasPlaces    =  (state.map && Array.isArray(state.map.places)  && state.map.places.length);
 
-  // 2) Wenn Lokal neuer/eher befüllt -> lokalen Stand behalten und zurückschieben
-  const remoteHasNoPlaces = !(remote.map && Array.isArray(remote.map.places) && remote.map.places.length);
-  const localHasPlaces    = (state.map && Array.isArray(state.map.places) && state.map.places.length);
+      // Lokal behalten, wenn lokaler Stand neuer ist ODER remote „leer“ ist
+      if (rT <= lT || (remoteHasNoPlaces && localHasPlaces)) {
+        if (window.liveDBSave) window.liveDBSave();
+        return;
+      }
 
-  if (rT <= lT || (remoteHasNoPlaces && localHasPlaces)) {
-    // lokalen (besseren) Stand nach Remote pushen
-    if (window.liveDBSave) window.liveDBSave();
-    return;
-  }
-
-  // 3) Remote ist neuer → übernehmen
-  Object.assign(state, remote);
-  try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
-  try { rerenderAll(); } catch {}
-});
-
+      // Remote ist neuer -> übernehmen
+      Object.assign(state, remote);
+      try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+      try { rerenderAll(); } catch {}
+    });
 
     // local -> remote (debounced), wird von save() getriggert
     const push = () => {
       writing = true;
-      set(node, { ...state, _updatedAt: Date.now() })
+      set(node, { ...state, _updatedAt: state._updatedAt || Date.now() })
         .finally(() => { writing = false; });
     };
     window.liveDBSave = (() => { let t; return () => { clearTimeout(t); t = setTimeout(push, 400); }; })();
 
-    // Falls aus der DB beim Start nichts kommt, einmal initial hochladen
-    setTimeout(() => {
-      if (!gotFirstRemote) push();
-    }, 1000);
+    // Wenn zum Start nichts aus der DB kam, lokalen Stand initial hochladen
+    setTimeout(() => { if (!sawRemote) push(); }, 1200);
   })();
 </script>
+
 </body>
 </html>
