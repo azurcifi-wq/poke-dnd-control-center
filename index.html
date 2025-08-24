@@ -803,13 +803,17 @@ async function setMapBg(){
   const src = !u ? '' : (u.startsWith('data:') ? u : prox(u));
   mapDiv.style.backgroundImage = u ? `url(${src})` : 'none';
 
-  // Bildmaße laden und merken (für saubere Prozent-Umrechnung)
   if(u){
     const meta = await loadMapMeta(src);
-    if(meta){ state.map.meta = meta; save(); }
+    const old = state.map.meta || {};
+    if (meta && (meta.w !== old.w || meta.h !== old.h)) {
+      state.map.meta = meta;
+      save();
+    }
   }
-  renderTokens(); // nach evtl. neuem Layout direkt neu positionieren
+  renderTokens();
 }
+
 
     
     
@@ -1228,39 +1232,54 @@ window.addEventListener('resize', renderTokens);
     let writing   = false;  // schützt vor Echo beim Zurückschreiben
     let sawRemote = false;  // haben wir schon etwas aus der DB gesehen?
 
-    // remote -> local (live) mit Konfliktlösung
-    onValue(node, snap => {
-      if (writing) return;
+   
+// Eindeutige Client-ID (pro Browser)
+const CLIENT_ID = (() => {
+  try {
+    let id = localStorage.getItem('poke_client_id');
+    if (!id) { id = 'c_' + Math.random().toString(36).slice(2,10); localStorage.setItem('poke_client_id', id); }
+    return id;
+  } catch { return 'c_' + Math.random().toString(36).slice(2,10); }
+})();
 
-      const remote = snap.val();
-      if (!remote || Object.keys(remote).length === 0) return;
+// remote -> local (live) mit Konfliktlösung
+onValue(node, snap => {
+  if (writing) return;
 
-      sawRemote = true;
+  const remote = snap.val();
+  if (!remote || Object.keys(remote).length === 0) return;
 
-      const rT = Number(remote._updatedAt || 0);
-      const lT = Number(state._updatedAt || 0);
+  // Eigene Writes ignorieren (verhindert Echo)
+  if (remote._by === CLIENT_ID) return;
 
-      const remoteHasNoPlaces = !(remote.map && Array.isArray(remote.map.places) && remote.map.places.length);
-      const localHasPlaces    =  (state.map && Array.isArray(state.map.places)  && state.map.places.length);
+  sawRemote = true;
 
-      // Lokal behalten, wenn lokaler Stand neuer ist ODER remote „leer“ ist
-      if (rT <= lT || (remoteHasNoPlaces && localHasPlaces)) {
-        if (window.liveDBSave) window.liveDBSave();
-        return;
-      }
+  const rT = Number(remote._updatedAt || 0);
+  const lT = Number(state._updatedAt || 0);
 
-      // Remote ist neuer -> übernehmen
-      Object.assign(state, remote);
-      try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
-      try { rerenderAll(); } catch {}
-    });
+  const remoteHasNoPlaces = !(remote.map && Array.isArray(remote.map.places) && remote.map.places.length);
+  const localHasPlaces    =  (state.map && Array.isArray(state.map.places)  && state.map.places.length);
+
+  // Nur übernehmen, wenn remote *wirklich neuer* ist und nicht "leer"
+  if (rT <= lT || (remoteHasNoPlaces && localHasPlaces)) {
+    // WICHTIG: KEIN liveDBSave() hier! Sonst Ping-Pong.
+    return;
+  }
+
+  // Remote ist neuer -> übernehmen
+  Object.assign(state, remote);
+  try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+  try { rerenderAll(); } catch {}
+});
+
 
     // local -> remote (debounced), wird von save() getriggert
-    const push = () => {
-      writing = true;
-      set(node, { ...state, _updatedAt: state._updatedAt || Date.now() })
-        .finally(() => { writing = false; });
-    };
+const push = () => {
+  writing = true;
+  set(node, { ...state, _updatedAt: state._updatedAt || Date.now(), _by: CLIENT_ID })
+    .finally(() => { writing = false; });
+};
+
     window.liveDBSave = (() => { let t; return () => { clearTimeout(t); t = setTimeout(push, 400); }; })();
 
     // Wenn zum Start nichts aus der DB kam, lokalen Stand initial hochladen
