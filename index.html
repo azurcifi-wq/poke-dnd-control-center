@@ -294,13 +294,117 @@
     <button id="btnErrHide" class="small" title="Schließen">×</button>
   </div>
 
-  <!-- Templates (unverändert) -->
-  <template id="tpl-player"> ... </template>
-  <template id="tpl-poke"> ... </template>
-  <template id="tpl-item"> ... </template>
-  <template id="tpl-shop"> ... </template>
-  <template id="tpl-log"> ... </template>
-  <template id="tpl-enc"> ... </template>
+ <template id="tpl-player">
+  <div class="card player">
+    <div class="row" style="margin-bottom:8px">
+      <div class="avatar" contenteditable>?</div>
+      <div class="grow">
+        <input class="pname" type="text" placeholder="Spielername"/>
+        <button class="iconbtn del" title="Spieler löschen" aria-label="Spieler löschen">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"></path>
+          </svg>
+        </button>
+        <div class="row" style="margin-top:6px">
+          <span class="pill">$ <input class="pmoney" type="number" style="width:100px" value="0"></span>
+          <span class="pill">Orden: <span class="bcount">0</span>/8</span>
+          <button class="small ghost addMon">Pokémon</button>
+          <button class="small ghost addItem">Item</button>
+        </div>
+      </div>
+    </div>
+    <div class="badges"></div>
+    <div class="grid cols-1" style="margin-top:10px">
+      <div>
+        <h4>Team</h4>
+        <div class="team grid"></div>
+      </div>
+      <div>
+        <h4>Inventar</h4>
+        <div class="inv grid"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-poke">
+  <div class="pokecard">
+    <img/>
+    <div class="grow">
+      <div class="row">
+        <input class="monname grow" type="text" placeholder="Pokémon-Name"/>
+        <select class="lang" style="width:110px">
+          <option value="DE">DE</option>
+          <option value="EN">EN</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <input class="imgurl grow" type="url" placeholder="Bild-URL (optional)"/>
+      </div>
+    </div>
+    <div class="row" style="flex-direction:column; gap:8px">
+      <button class="small ghost preview">Vorschau</button>
+      <button class="small toggle stealbtn">Steal-Schutz</button>
+      <button class="small bad remove">Entfernen</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-item">
+  <div class="itemcard">
+    <img class="simg"/>
+    <div class="grow">
+      <input class="itemname" type="text" placeholder="Item-Name"/>
+      <input class="itemimg" type="url" placeholder="(optional) Bild-URL oder leer lassen und Vorschau klicken" style="margin-top:6px"/>
+    </div>
+    <div class="row" style="flex-direction:column; gap:8px">
+      <button class="small ghost preview">Vorschau</button>
+      <button class="small bad remove">Entfernen</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-shop">
+  <div class="itemcard">
+    <div class="avatar">🛒</div>
+    <div class="grow">
+      <input class="sname" type="text"/>
+      <div class="row" style="margin-top:6px">
+        <span class="pill">$ <input class="sprice" type="number" style="width:120px"></span>
+      </div>
+    </div>
+    <button class="small bad remove">Entfernen</button>
+  </div>
+</template>
+
+<template id="tpl-log">
+  <div class="itemcard">
+    <div class="avatar">📜</div>
+    <input class="logtext grow" type="text" placeholder="z. B. Schucki besiegt Isty 2:0 – Orden #2"/>
+    <button class="small bad remove">Entfernen</button>
+  </div>
+</template>
+
+<template id="tpl-enc">
+  <div class="itemcard">
+    <img class="eimg"/>
+    <div class="grow">
+      <div class="row">
+        <input class="ename grow" type="text" placeholder="Pokémon-Name"/>
+        <select class="elang" style="width:110px">
+          <option value="DE">DE</option>
+          <option value="EN">EN</option>
+        </select>
+      </div>
+      <input class="eurl" type="url" placeholder="Bild-URL (optional)" style="margin-top:6px"/>
+    </div>
+    <div class="row" style="flex-direction:column; gap:8px">
+      <button class="small ghost preview">Vorschau</button>
+      <button class="small bad remove">Entfernen</button>
+    </div>
+  </div>
+</template>
+
 
   <script>
     // === Helpers ===
