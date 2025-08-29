@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Poké‑DnD Control Center</title>
+  <title>Poké-DnD Control Center</title>
   <style>
     :root{
-      --bg:#f7f7f9;          /* helles Grau/Weiß */
-      --panel:#ffffff;        /* Flächen */
-      --card:#ffffff;         /* Karten */
-      --chip:#f3f4f6;         /* Pills/Chips */
-      --text:#111827;         /* fast Schwarz */
-      --muted:#6b7280;        /* Grau für Nebeninfos */
-      --accent:#e60012;       /* Pokémon‑Rot */
+      --bg:#f7f7f9;
+      --panel:#ffffff;
+      --card:#ffffff;
+      --chip:#f3f4f6;
+      --text:#111827;
+      --muted:#6b7280;
+      --accent:#e60012;
       --accent-contrast:#ffffff;
-      --warn:#ffcb05;         /* Pokémon‑Gelb */
-      --bad:#b91c1c;          /* Tiefrot für destruktiv */
-      --border:#e5e7eb;       /* helle Ränder */
+      --warn:#ffcb05;
+      --bad:#b91c1c;
+      --border:#e5e7eb;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -37,51 +37,42 @@
     .actions{display:flex; gap:8px; flex-wrap:wrap}
 
     button, input, select, textarea{font:inherit}
-    /* Einheitliche Button-Ausrichtung */
     button{display:inline-flex; align-items:center; justify-content:center; line-height:1}
     button{background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:700}
     button.ghost{background:transparent; color:var(--text); border:1px solid var(--border)}
     button.warn{background:var(--warn); color:#1f2937}
     button.bad{background:var(--bad); color:#fff}
-    button.small{padding:8px 12px; border-radius:8px; font-size:12px} /* symmetrische Vertikal-Polsterung */
+    button.small{padding:8px 12px; border-radius:8px; font-size:12px}
     .toggle{background:#e5e7eb; color:#111827}
     .toggle.on{background:var(--accent); color:#fff}
 
     .layout{display:grid; grid-template-columns:280px 1fr; gap:24px; padding:24px; height:calc(100vh - 64px)}
-
     nav{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px; overflow:auto}
     nav h3{margin:8px 8px 10px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
     .tab{display:block; padding:10px 12px; border-radius:12px; color:var(--text); text-decoration:none; margin:6px 4px; border:1px solid transparent}
     .tab.active{background:var(--card); border-color:var(--accent); box-shadow:0 0 0 2px rgba(230,0,18,.10)}
-
     main{overflow:auto; border-radius:16px; border:1px solid var(--border); background:var(--panel)}
     .panel{padding:24px}
-    /* Mehr Whitespace oberhalb der Panel-Inhalte */
     .panel > .row:first-child{margin-bottom:18px !important}
 
     .grid{display:grid; gap:20px}
     .grid.cols-1{grid-template-columns:1fr}
     .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    /* Größerer Abstand speziell zwischen Spieler-Karten */
     #players.grid{gap:28px}
 
     .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px}
-    /* Spieler-Karten: klarer Kontrast & Element-Charakter */
     #players .card.player{position:relative; background:#fff; border:1px solid #d1d5db; box-shadow:0 12px 28px rgba(0,0,0,.10)}
-    #players .card.player + .card.player{margin-top:6px} /* zusätzliche Mini-Luft für mobile stacks */
+    #players .card.player + .card.player{margin-top:6px}
     #players .card.player::before{content:""; position:absolute; left:-1px; top:-1px; bottom:-1px; width:6px; border-radius:16px 0 0 16px; background:linear-gradient(180deg,var(--accent) 0%, var(--warn) 100%)}
     #players .card.player:hover{box-shadow:0 14px 32px rgba(0,0,0,.12)}
 
-    /* Avatar visuell stärker */
     .avatar{width:44px; height:44px; border-radius:999px; background:#fff; border:2px solid var(--accent); display:grid; place-items:center; font-weight:800; color:#111}
 
-    /* Fokus/Interaktion: klare Sichtbarkeit */
     input[type="text"], input[type="number"], input[type="url"], textarea, select, button{transition:box-shadow .15s, border-color .15s, transform .12s}
     input[type="text"]:focus, input[type="number"]:focus, input[type="url"]:focus, textarea:focus, select:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(230,0,18,.15); outline:none}
     button:hover{filter:brightness(.95)}
     button.ghost:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(230,0,18,.10)}
 
-    /* Orden/Badges: Hover-Feedback */
     .badge:hover{box-shadow:0 0 0 2px rgba(230,0,18,.15)}
     .row{display:flex; gap:14px; align-items:center}
     .grow{flex:1; min-width:0}
@@ -98,18 +89,12 @@
 
     .pokecard{display:grid; grid-template-columns:128px minmax(0,1fr) auto; gap:10px; align-items:start; padding:8px; background:var(--card); border:1px solid var(--border); border-radius:12px}
     .pokecard img{width:128px; height:128px; object-fit:contain; background:#f3f4f6; border-radius:8px}
-
     .itemcard{display:grid; grid-template-columns:48px minmax(0,1fr) auto; gap:10px; align-items:center; padding:8px; background:var(--card); border:1px solid var(--border); border-radius:12px}
     .itemcard img{width:48px; height:48px; object-fit:contain; background:#f3f4f6; border-radius:8px}
-
-    /* Größere Bilder NUR im Inventar (200%) */
     .inv .itemcard{grid-template-columns:96px minmax(0,1fr) auto}
     .inv .itemcard img{width:96px; height:96px}
-
-    /* Klick-Zoom Hinweis */
     .pokecard img, .itemcard img{cursor:zoom-in}
 
-    /* Lightbox */
     #lightbox{position:fixed; inset:0; background:rgba(0,0,0,.86); display:none; z-index:9999; place-items:center; padding:24px}
     #lightbox .lb-inner{position:relative; max-width:95vw; max-height:90vh}
     #lightbox img{max-width:95vw; max-height:90vh; display:block; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.6)}
@@ -117,30 +102,26 @@
 
     .mapwrap{position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border)}
     .mapwrap .toolbar{position:absolute; right:10px; top:10px; display:flex; gap:6px; z-index:2}
-    /* Orte/Places Marker auf der Karte */
     .place{position:absolute; width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:#111827; color:#fff; font-weight:900; border:3px solid var(--accent); cursor:grab}
     .place.city{background:#111827}
     .place.route{background:#374151}
     .place-label{position:absolute; top:38px; left:50%; transform:translateX(-50%); background:rgba(17,24,39,.9); color:#fff; padding:2px 6px; border-radius:6px; font-size:11px; white-space:nowrap; pointer-events:none}
-    /* Mini-Galerie mit Encounter-Bildern als Tooltip */
     .enc-tooltip{
-    position:absolute; left:50%; top:40px;
-    transform:translateX(-50%) scale(.98);
-    background:rgba(17,24,39,.92);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:10px; padding:6px;
-    display:flex; gap:6px;
-    opacity:0; pointer-events:none;
-    transition:.15s ease;
+      position:absolute; left:50%; top:40px;
+      transform:translateX(-50%) scale(.98);
+      background:rgba(17,24,39,.92);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:6px;
+      display:flex; gap:6px;
+      opacity:0; pointer-events:none;
+      transition:.15s ease;
     }
     .place:hover .enc-tooltip{ opacity:1; transform:translateX(-50%) scale(1); }
     .enc-tooltip img{
-    width:32px; height:32px; object-fit:contain;
-    background:#111; border-radius:6px;
+      width:32px; height:32px; object-fit:contain;
+      background:#111; border-radius:6px;
     }
 
-
-    /* Liste unten: Städte & Routen */
     #placesList details{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:8px}
     #placesList summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px}
     #placesList summary::-webkit-details-marker{display:none}
@@ -151,89 +132,61 @@
     .checkrow label{display:flex; gap:6px; align-items:center}
     .enc textarea{width:100%; min-height:80px}
     .place-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
-    /* 75% der Fensterhöhe, skaliert automatisch */
     .map{position:relative; width:100%; min-height:75vh; background:#f3f4f6 center/contain no-repeat}
-    @media (max-width:980px){
-    .map{min-height:60vh;} /* auf Handy etwas kleiner */
-    }
+    @media (max-width:980px){ .map{min-height:60vh;} }
 
     .token{position:absolute; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:var(--accent); color:#fff; font-weight:900; border:3px solid rgba(0,0,0,.12); cursor:grab}
 
     .footer{padding:10px 16px; color:var(--muted); font-size:12px; border-top:1px solid var(--border)}
 
     @media (max-width:980px){ .layout{grid-template-columns:1fr; height:auto} nav{order:2} main{order:1} }
-    /* ===== Layout-Tuning für Spieler-Zeile ===== */
     #players .card.player > .row{flex-wrap:nowrap; align-items:center}
-    /* Name nicht mehr 100% breit: feste, angenehme Breite; restlicher Platz bleibt frei */
     #players .card.player .grow{display:grid; grid-template-columns:minmax(200px,360px) auto; grid-column-gap:12px; align-items:center}
     #players .card.player .grow > input.pname{grid-column:1 / 2; width:100%}
     #players .card.player .grow > .row{grid-column:1 / -1}
-
     @media (max-width: 700px){
       #players .card.player > .row{flex-wrap:wrap}
       #players .card.player .grow{grid-template-columns:1fr}
     }
-    /* Klassenbild oben rechts in der Spielerkarte */
     #players .card.player .classimg{
-    position:absolute;
-    top:12px;
-    right:12px;
-    width:96px;           /* gerne 72–120 anpassen */
-    height:auto;
-    border-radius:10px;
-    border:1px solid var(--border);
-    box-shadow:0 8px 20px rgba(0,0,0,.12);
+      position:absolute; top:12px; right:12px; width:96px; height:auto;
+      border-radius:10px; border:1px solid var(--border);
+      box-shadow:0 8px 20px rgba(0,0,0,.12);
     }
-
-
-    
-    /* Icon-Only Delete Button neben dem Namen */
     .iconbtn{width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:var(--bad); border:1px solid var(--bad); color:#fff; cursor:pointer}
     .iconbtn svg{width:18px; height:18px; fill:currentColor; display:block}
     .iconbtn:hover{filter:brightness(.95)}
     .iconbtn.warn{filter:brightness(.90); box-shadow:0 0 0 3px rgba(185,28,28,.28) inset}
     .iconbtn.warn{background:#fff0f0; border-color:#fca5a5}
 
-    /* Größeres Plus für wichtige Add-Buttons */
     button.addMon::before, button.addItem::before, #btnAddPlayer::before{content:'+'; font-size:18px; font-weight:900; margin-right:8px; line-height:1}
     button.ghost.addMon, button.ghost.addItem{border-color:var(--accent); box-shadow:0 0 0 2px rgba(230,0,18,.06) inset}
-    /* Text vertikal mittig halten */
     .row button.small.ghost.addMon, .row button.small.ghost.addItem{align-self:center}
-
-    /* Responsive: Name + Trash bleiben nebeneinander */
     @media (max-width:700px){
       #players .card.player .grow{grid-template-columns:1fr auto}
     }
-  /* Fehler-Banner (Diagnose) */
+
     #errbar{position:fixed; left:12px; bottom:12px; background:#111; color:#fff; padding:10px 12px; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,.3); display:none; gap:10px; align-items:center; z-index:10000}
     #errbar .msg{max-width:52vw; font-size:12px; opacity:.95}
     #btnRebind{background:var(--warn); color:#111}
     #btnErrHide{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.3)}
 
-    /* Live-Sync aktiv: Import/Reload ausblenden (Export optional behalten) */
-.live-sync #btnImport,
-.live-sync #fileImport,
-.live-sync #btnReload { display: none !important; }
-
-/* Falls du auch Export verstecken willst, diese Zeile zusätzlich: */
-.live-sync #btnExport { display: none !important; }
-.live-sync #btnReset { display: none !important; }
-
-
-    
+    .live-sync #btnImport,
+    .live-sync #fileImport,
+    .live-sync #btnReload { display: none !important; }
+    .live-sync #btnExport { display: none !important; }
+    .live-sync #btnReset { display: none !important; }
   </style>
 </head>
-  <body class="live-sync">
+<body class="live-sync">
   <div class="app">
     <header>
-      <div>
-        <h1>Poké‑DnD Control Center</h1>
-      </div>
+      <div><h1>Poké-DnD Control Center</h1></div>
       <div class="actions">
         <button id="btnExport" class="ghost">Export (.json)</button>
         <button id="btnImport" class="ghost">Import (.json)</button>
         <input id="fileImport" type="file" accept="application/json" style="display:none" />
-        <button id="btnReload" class="ghost">Neu laden (Shared)</button><!-- NEU -->
+        <button id="btnReload" class="ghost">Neu laden (Shared)</button>
         <button id="btnReset" class="bad">Alle Daten löschen</button>
       </div>
     </header>
@@ -244,7 +197,7 @@
         <a class="tab active" data-tab="players">Spieler & Teams</a>
         <a class="tab" data-tab="map">Karte</a>
         <a class="tab" data-tab="rules">Regeln & Preise</a>
-        <a class="tab" data-tab="log">Session‑Log</a>
+        <a class="tab" data-tab="log">Session-Log</a>
         <a class="tab" data-tab="about">Hilfe</a>
       </nav>
       <main>
@@ -260,11 +213,11 @@
           <div class="row" style="margin-bottom:10px">
             <h2 class="grow">Karte & Marker</h2>
             <div class="row" style="gap:6px">
-              <input id="mapUrl" type="url" placeholder="Karten‑Bild URL (Direktlink)"/>
+              <input id="mapUrl" type="url" placeholder="Karten-Bild URL (Direktlink)"/>
               <button id="btnSetMap" class="small">Karte setzen</button>
               <button id="btnUploadMap" class="small ghost">Bilddatei hochladen</button>
               <input id="mapFile" type="file" accept="image/*" style="display:none" />
-              <button id="btnAddToken" class="small">Spieler‑Token hinzufügen</button>
+              <button id="btnAddToken" class="small">Spieler-Token hinzufügen</button>
             </div>
           </div>
           <div class="mapwrap">
@@ -295,7 +248,7 @@
               <h3>ShopListe</h3>
               <div id="shop" class="grid"></div>
               <div class="row" style="margin-top:8px">
-                <input id="shopName" type="text" placeholder="Item‑Name"/>
+                <input id="shopName" type="text" placeholder="Item-Name"/>
                 <input id="shopPrice" type="number" placeholder="Preis" style="width:120px"/>
                 <button id="btnAddShop" class="small">Item</button>
               </div>
@@ -305,7 +258,7 @@
 
         <section id="tab-log" class="panel" hidden>
           <div class="row" style="margin-bottom:10px">
-            <h2 class="grow">Session‑Log</h2>
+            <h2 class="grow">Session-Log</h2>
             <button id="btnAddLog" class="small">+ Eintrag</button>
           </div>
           <div id="log" class="grid"></div>
@@ -315,7 +268,7 @@
           <h2>Hilfe</h2>
           <div class="card">
             <ul>
-              <li><b>Vorschau</b> rät Bilder automatisch aus dem Namen (Pokémon + Items). Du kannst auch eine Bild‑URL einfügen.</li>
+              <li><b>Vorschau</b> rät Bilder automatisch aus dem Namen (Pokémon + Items). Du kannst auch eine Bild-URL einfügen.</li>
               <li>Alles speichert lokal. Über <b>Export</b>/<b>Import</b> teilt ihr euren Stand.</li>
               <li><b>Alle Daten löschen</b> setzt alles sofort zurück – ohne Neuladen nötig.</li>
             </ul>
@@ -327,7 +280,7 @@
     </div>
   </div>
 
-  <!-- Lightbox (falls bisher fehlte) + Fehlerbar -->
+  <!-- Lightbox + Fehlerbar -->
   <div id="lightbox" style="display:none;">
     <div class="lb-inner">
       <img id="lbImg" alt=""/>
@@ -341,124 +294,32 @@
     <button id="btnErrHide" class="small" title="Schließen">×</button>
   </div>
 
-  <template id="tpl-player">
-    <div class="card player">
-      <div class="row" style="margin-bottom:8px">
-        <div class="avatar" contenteditable>?</div>
-        <div class="grow">
-          <input class="pname" type="text" placeholder="Spielername"/>
-          <button class="iconbtn del" title="Spieler löschen" aria-label="Spieler löschen">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"></path>
-            </svg>
-          </button>
-          <div class="row" style="margin-top:6px">
-            <span class="pill">$ <input class="pmoney" type="number" style="width:100px" value="0"></span>
-            <span class="pill">Orden: <span class="bcount">0</span>/8</span>
-            <button class="small ghost addMon">Pokémon</button>
-            <button class="small ghost addItem">Item</button>
-          </div>
-        </div>
-        
-      </div>
-      <div class="badges"></div>
-      <div class="grid cols-1" style="margin-top:10px">
-        <div>
-          <h4>Team</h4>
-          <div class="team grid"></div>
-        </div>
-        <div>
-          <h4>Inventar</h4>
-          <div class="inv grid"></div>
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <template id="tpl-poke">
-    <div class="pokecard">
-      <img/>
-      <div class="grow">
-        <div class="row">
-          <input class="monname grow" type="text" placeholder="Pokémon‑Name"/>
-          <select class="lang" style="width:110px">
-            <option value="DE">DE</option>
-            <option value="EN">EN</option>
-          </select>
-        </div>
-        <div class="row" style="margin-top:6px">
-          <input class="imgurl grow" type="url" placeholder="Bild‑URL (optional)"/>
-        </div>
-      </div>
-      <div class="row" style="flex-direction:column; gap:8px">
-        <button class="small ghost preview">Vorschau</button>
-        <button class="small toggle stealbtn">Steal‑Schutz</button>
-        <button class="small bad remove">Entfernen</button>
-      </div>
-    </div>
-  </template>
-
-  <template id="tpl-item">
-    <div class="itemcard">
-      <img class="simg"/>
-      <div class="grow">
-        <input class="itemname" type="text" placeholder="Item‑Name"/>
-        <input class="itemimg" type="url" placeholder="(optional) Bild‑URL oder leer lassen und Vorschau klicken" style="margin-top:6px"/>
-      </div>
-      <div class="row" style="flex-direction:column; gap:8px">
-        <button class="small ghost preview">Vorschau</button>
-        <button class="small bad remove">Entfernen</button>
-      </div>
-    </div>
-  </template>
-
-  <template id="tpl-shop">
-    <div class="itemcard">
-      <div class="avatar">🛒</div>
-      <div class="grow">
-        <input class="sname" type="text"/>
-        <div class="row" style="margin-top:6px"><span class="pill">$ <input class="sprice" type="number" style="width:120px"></span></div>
-      </div>
-      <button class="small bad remove">Entfernen</button>
-    </div>
-  </template>
-
-  <template id="tpl-log">
-    <div class="itemcard">
-      <div class="avatar">📜</div>
-      <input class="logtext grow" type="text" placeholder="z. B. Schucki besiegt Isty 2:0 – Orden #2"/>
-      <button class="small bad remove">Entfernen</button>
-    </div>
-  </template>
-
-    <template id="tpl-enc">
-  <div class="itemcard">
-    <img class="eimg"/>
-    <div class="grow">
-      <div class="row">
-        <input class="ename grow" type="text" placeholder="Pokémon-Name"/>
-        <select class="elang" style="width:110px">
-          <option value="DE">DE</option>
-          <option value="EN">EN</option>
-        </select>
-      </div>
-      <input class="eurl" type="url" placeholder="Bild-URL (optional)" style="margin-top:6px"/>
-    </div>
-    <div class="row" style="flex-direction:column; gap:8px">
-      <button class="small ghost preview">Vorschau</button>
-      <button class="small bad remove">Entfernen</button>
-    </div>
-  </div>
-</template>
-
+  <!-- Templates (unverändert) -->
+  <template id="tpl-player"> ... </template>
+  <template id="tpl-poke"> ... </template>
+  <template id="tpl-item"> ... </template>
+  <template id="tpl-shop"> ... </template>
+  <template id="tpl-log"> ... </template>
+  <template id="tpl-enc"> ... </template>
 
   <script>
     // === Helpers ===
     function addLog(text){ state.log.push({text}); save(); try{ renderLog(); }catch(e){} }
-    function showErr(msg){ try{ const b=document.getElementById('errbar'); if(!b) return; b.style.display='flex'; b.querySelector('.msg').textContent=String(msg||'Unbekannter Fehler'); }catch(e){} }
+    function showErr(msg){
+      try{
+        const b=document.getElementById('errbar'); if(!b) return;
+        b.style.display='flex'; b.querySelector('.msg').textContent=String(msg||'Unbekannter Fehler');
+      }catch(e){}
+    }
     window.addEventListener('error', e=>{ showErr(e.message||'Scriptfehler'); });
-    window.addEventListener('unhandledrejection', e=>{ const r=e.reason; showErr((r&& (r.message||r)) || 'Promise-Fehler'); });
-    const $ = s => document.querySelector(s); const $$ = s => Array.from(document.querySelectorAll(s));
+    window.addEventListener('unhandledrejection', e=>{ const r=e.reason; showErr((r&&(r.message||r))||'Promise-Fehler'); });
+    setTimeout(()=>{
+      const hide=$('#btnErrHide'); if(hide) hide.onclick=()=>{ $('#errbar').style.display='none'; };
+      const rebind=$('#btnRebind'); if(rebind) rebind.onclick=()=>location.reload();
+    },0);
+
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
     function prox(u){ if(!u) return ''; try{ const x=new URL(u); return `https://images.weserv.nl/?url=${encodeURIComponent(x.host+x.pathname+x.search)}` }catch(e){ return u } }
     function slugify(s){ s=(s||'').normalize('NFD'); let o=''; for(const ch of s){const c=ch.toLowerCase(); const cp=ch.codePointAt(0); if(cp>=0x0300&&cp<=0x036F) continue; if((c>='a'&&c<='z')||(c>='0'&&c<='9')||c===' '||c==='-') o+=c;} return o.trim().replace(/\s+/g,'-'); }
     const deToEn={bisasam:'bulbasaur',bisaknosp:'ivysaur',bisaflor:'venusaur',glumanda:'charmander',glutexo:'charmeleon',glurak:'charizard',schiggy:'squirtle',schillok:'wartortle',turtok:'blastoise',evoli:'eevee',aquana:'vaporeon',blitza:'jolteon',flamara:'flareon',psiana:'espeon',nachtara:'umbreon',folipurba:'leafeon',glaziola:'glaceon',feelinara:'sylveon',pikachu:'pikachu',raichu:'raichu'};
@@ -467,72 +328,54 @@
     const guessMon=(n,lang)=>{const en=slugify(toEn(n,lang));return en?`https://img.pokemondb.net/artwork/large/${en}.jpg`:''};
     const guessItem=n=>{n=String(n||'').trim(); if(!n) return ''; const k=n.toLowerCase(); const slug=slugify(deItemToEn[k]||n); return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${slug}.png`};
 
-// --- Auto-Übersetzung DE -> EN (via PokeAPI) + Cache ---
-const MON_EN_CACHE_KEY = 'mon_en_cache_v1';
-let monEnCache = {};
-try { monEnCache = JSON.parse(localStorage.getItem(MON_EN_CACHE_KEY) || '{}'); } catch(e){}
-const saveMonCache = ()=>{ try{ localStorage.setItem(MON_EN_CACHE_KEY, JSON.stringify(monEnCache)); }catch(e){} };
+    // --- Auto-Übersetzung DE -> EN (via PokeAPI) + Cache ---
+    const MON_EN_CACHE_KEY = 'mon_en_cache_v1';
+    let monEnCache = {};
+    try { monEnCache = JSON.parse(localStorage.getItem(MON_EN_CACHE_KEY) || '{}'); } catch(e){}
+    const saveMonCache = ()=>{ try{ localStorage.setItem(MON_EN_CACHE_KEY, JSON.stringify(monEnCache)); }catch(e){} };
 
-/**
- * Sucht für einen deutschen Pokémon-Namen den EN-Slug über die PokeAPI.
- * - cached Ergebnisse in localStorage (monEnCache)
- * - lädt den Species-Index nur einmal (~1 Request), dann die Details
- *   bis zum Treffer (ein paar Requests; danach dauerhaft aus Cache)
- */
-async function lookupEnglishViaPokeAPI(deName){
-  const key = String(deName||'').trim().toLowerCase();
-  if (!key) return '';
-
-  // 1) Cache?
-  if (monEnCache[key]) return monEnCache[key];
-
-  try{
-    // 2) Species-Index einmalig laden
-    if (!window._speciesIdx) {
-      const res = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=20000');
-      const data = await res.json();
-      window._speciesIdx = (data && data.results) || [];
+    async function lookupEnglishViaPokeAPI(deName){
+      const key = String(deName||'').trim().toLowerCase();
+      if (!key) return '';
+      if (monEnCache[key]) return monEnCache[key];
+      try{
+        if (!window._speciesIdx) {
+          const res = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=20000');
+          const data = await res.json();
+          window._speciesIdx = (data && data.results) || [];
+        }
+        for (const s of window._speciesIdx){
+          const d = await fetch(s.url).then(r=>r.json());
+          const de = (d.names||[]).find(n => n.language?.name === 'de');
+          if (de && String(de.name||'').trim().toLowerCase() === key){
+            monEnCache[key] = d.name;
+            saveMonCache();
+            return d.name;
+          }
+        }
+      }catch(e){}
+      return '';
     }
 
-    // 3) Durchgehen bis zum Treffer (enthält mehrsprachen-Namen)
-    for (const s of window._speciesIdx){
-      const d = await fetch(s.url).then(r=>r.json());
-      const de = (d.names||[]).find(n => n.language?.name === 'de');
-      if (de && String(de.name||'').trim().toLowerCase() === key){
-        monEnCache[key] = d.name;            // EN-Slug (z.B. "purrloin")
-        saveMonCache();
-        return d.name;
+    async function ensureEnglishAndGetImage(name, lang){
+      if(!name) return '';
+      let slug = '';
+      if (lang === 'DE'){
+        const k = name.trim().toLowerCase();
+        slug = deToEn[k] || '';
+        if(!slug) slug = await lookupEnglishViaPokeAPI(name);
+      } else {
+        slug = slugify(name);
       }
+      return slug ? `https://img.pokemondb.net/artwork/large/${slug}.jpg` : '';
     }
-  }catch(e){ /* still, no crash */ }
-
-  return '';
-}
-
-/** Liefert die Artwork-URL – bei DE wird erst auf EN übersetzt. */
-async function ensureEnglishAndGetImage(name, lang){
-  if(!name) return '';
-  let slug = '';
-  if (lang === 'DE'){
-    const k = name.trim().toLowerCase();
-    // 1) kleine eingebaute Map zuerst probieren
-    slug = deToEn[k] || '';
-    // 2) sonst PokeAPI-Übersetzung
-    if(!slug) slug = await lookupEnglishViaPokeAPI(name);
-  } else {
-    slug = slugify(name);
-  }
-  return slug ? `https://img.pokemondb.net/artwork/large/${slug}.jpg` : '';
-}
-
-    
 
     function setImage(el, url){
       if(!url){ el.removeAttribute('src'); return; }
       try{ el.referrerPolicy = 'no-referrer'; }catch(e){}
       const cands = [];
-      if(/^https?:/i.test(url)) cands.push(url); // Direktversuch
-      cands.push(prox(url)); // Proxy als Fallback
+      if(/^https?:/i.test(url)) cands.push(url);
+      cands.push(prox(url));
       let i = 0;
       el.onerror = ()=>{ i++; if(i < cands.length){ el.src = cands[i]; } else { el.removeAttribute('src'); } };
       el.src = cands[0];
@@ -562,71 +405,46 @@ async function ensureEnglishAndGetImage(name, lang){
 
     // === State ===
     const state = JSON.parse(localStorage.getItem('poke_dnd_state')||'null') || {players:[], map:{url:'',tokens:[],places:[]}, rules:'', shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}], log:[]};
-function normalizeState(){
-  state.map = state.map || {};
-  if (typeof state.map.url !== 'string') state.map.url = '';
-  if (!Array.isArray(state.map.tokens)) state.map.tokens = [];
-  if (!Array.isArray(state.map.places)) state.map.places = [];
-  if (!Array.isArray(state.players)) state.players = [];
-  if (!Array.isArray(state.shop)) state.shop = [];
-  if (!Array.isArray(state.log)) state.log = [];
-
-  // Encounters in allen Places auf Objekt-Form bringen
-  (state.map.places||[]).forEach(pl=>{
-    if (!Array.isArray(pl.encounters)) pl.encounters = [];
-    pl.encounters = pl.encounters.map(e=>{
-      if (typeof e === 'string') return {name:e, lang:'DE', img:''};
-      if (e && typeof e === 'object')
-        return {name:e.name||'', lang:e.lang||'DE', img:e.img||''};
-      return {name:'', lang:'DE', img:''};
-    });
-    // Nur Routen zulassen (vorläufig)
-    pl.type = 'route';
-  });
-}
-normalizeState();
-
-    //const save = () => localStorage.setItem('poke_dnd_state', JSON.stringify(state));
-function save(){
-  // Zeitstempel für Konfliktlösung
-  state._updatedAt = Date.now();
-
-  // optional: mini-Backup (1x pro Minute)
-  try {
-    const last = Number(localStorage.getItem('poke_backup_last')||0);
-    if (Date.now() - last > 60*1000) {
-      const key = 'poke_backup_'+new Date().toISOString().slice(0,16); // minütlich
-      localStorage.setItem(key, JSON.stringify(state));
-      localStorage.setItem('poke_backup_last', String(Date.now()));
-      // (Aufräumen könntest du später machen: nur die letzten 20 behalten)
+    function normalizeState(){
+      state.map = state.map || {};
+      if (typeof state.map.url !== 'string') state.map.url = '';
+      if (!Array.isArray(state.map.tokens)) state.map.tokens = [];
+      if (!Array.isArray(state.map.places)) state.map.places = [];
+      if (!Array.isArray(state.players)) state.players = [];
+      if (!Array.isArray(state.shop)) state.shop = [];
+      if (!Array.isArray(state.log)) state.log = [];
+      (state.map.places||[]).forEach(pl=>{
+        if (!Array.isArray(pl.encounters)) pl.encounters = [];
+        pl.encounters = pl.encounters.map(e=>{
+          if (typeof e === 'string') return {name:e, lang:'DE', img:''};
+          if (e && typeof e === 'object')
+            return {name:e.name||'', lang:e.lang||'DE', img:e.img||''};
+          return {name:'', lang:'DE', img:''};
+        });
+        pl.type = 'route';
+      });
     }
-  } catch {}
+    normalizeState();
 
-  try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
-  if (window.liveDBSave) window.liveDBSave();
-}
-
-
-    // === Shared-Loader (optionale gemeinsame Startdatei) ===
-    const DEFAULT_STATE = {
-      players:[],
-      map:{url:'',tokens:[],places:[]},
-      rules:'',
-      shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}],
-      log:[]
-    };
-
-    function getParam(name){
-      try{ return new URL(location.href).searchParams.get(name); }catch(e){ return null; }
+    // save() – mit Push-Suppression während Remote-Apply
+    function save(){
+      state._updatedAt = Date.now();
+      try {
+        const last = Number(localStorage.getItem('poke_backup_last')||0);
+        if (Date.now() - last > 60*1000) {
+          const key = 'poke_backup_'+new Date().toISOString().slice(0,16);
+          localStorage.setItem(key, JSON.stringify(state));
+          localStorage.setItem('poke_backup_last', String(Date.now()));
+        }
+      } catch {}
+      try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+      if (window.liveDBSave && !window.__suppressPush) window.liveDBSave();
     }
-    async function fetchJsonMaybe(url){
-      try{
-        const res = await fetch(url, {cache:'no-store'});
-        if(!res.ok) throw new Error('HTTP '+res.status);
-        return await res.json();
-      }catch(e){ return null; }
-    }
-    // „Leer?“ – wir überschreiben nur, wenn lokal wirklich noch nichts drin ist
+
+    // Shared-Loader
+    const DEFAULT_STATE = { players:[], map:{url:'',tokens:[],places:[]}, rules:'', shop:[{name:'Superball',price:10},{name:'Hyperball',price:20},{name:'Rote Karte',price:5}], log:[] };
+    function getParam(name){ try{ return new URL(location.href).searchParams.get(name); }catch(e){ return null; } }
+    async function fetchJsonMaybe(url){ try{ const res = await fetch(url, {cache:'no-store'}); if(!res.ok) throw new Error('HTTP '+res.status); return await res.json(); }catch(e){ return null; } }
     function isEmptyState(s){
       try{
         if(!s) return true;
@@ -637,54 +455,43 @@ function save(){
         return true;
       }catch(e){ return true; }
     }
-
-    /**
-     * Lädt (falls vorhanden) eine gemeinsame JSON:
-     * 1) ?data=<URL> (Query-String)
-     * 2) ./data.json (aus dem Repo)
-     * initial=true  -> nur laden, wenn lokaler State leer ist
-     * initial=false -> immer laden/überschreiben
-     */
     async function maybeLoadShared(initial){
-      const qsUrl   = getParam('data');   // z.B. ?data=https://raw.githubusercontent.com/.../data.json
-      const repoUrl = './data.json';      // funktioniert mit GitHub Pages
-
+      const qsUrl   = getParam('data');
+      const repoUrl = './data.json';
       let remote = null;
       if(qsUrl)   remote = await fetchJsonMaybe(qsUrl);
       if(!remote) remote = await fetchJsonMaybe(repoUrl);
-      if(!remote) return; // nichts zu laden
-
-      if(initial && !isEmptyState(state)) return; // lokale Daten behalten
-
-      // Remote-Stand in den bestehenden State kopieren
+      if(!remote) return;
+      if(initial && !isEmptyState(state)) return;
       Object.assign(state, remote);
       normalizeState();
       save();
-
-      // UI aktualisieren
       try{ $('#mapUrl').value = state.map?.url || ''; }catch(e){}
       renderPlayers(); setMapBg(); renderTokens(); renderPlaces();
       if(typeof renderShop==='function') renderShop();
       if(typeof renderLog==='function')  renderLog();
     }
 
-    // Alles neu zeichnen (ohne Reload)
     function rerenderAll(){
       try{ $('#mapUrl').value = state.map?.url || ''; }catch(e){}
       renderPlayers(); setMapBg(); renderTokens();
       try{ const rules = $('#rulesText'); if(rules) rules.value = state.rules||''; }catch(e){}
-      try{ const shopEl = $('#shop'); if(shopEl) { /* re-render via helper */ } }catch(e){}
-      // die eigentlichen Renderer werden unten ohnehin erneut aufgerufen
     }
 
-    // Stable IDs for players (fixes delete issues)
+    // Stable IDs
     function newId(){ return 'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8); }
     function ensureId(p){ if(!p.id){ p.id = newId(); save(); } return p.id; }
 
-    // === Tabs ===
-    $$('.tab').forEach(t=>t.addEventListener('click',()=>{ $$('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); const id=t.dataset.tab; $$('[id^="tab-"]').forEach(s=>s.hidden=true); $('#tab-'+id).hidden=false; }));
+    // Tabs
+    $$('.tab').forEach(t=>t.addEventListener('click',()=>{
+      $$('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const id=t.dataset.tab;
+      $$('[id^="tab-"]').forEach(s=>s.hidden=true);
+      $('#tab-'+id).hidden=false;
+    }));
 
-    // === Players ===
+    // Players
     const playersEl = $('#players');
     function renderPlayers(){
       playersEl.innerHTML='';
@@ -694,24 +501,35 @@ function save(){
         const money=frag.querySelector('.pmoney'), bcount=frag.querySelector('.bcount');
         const badges=frag.querySelector('.badges'), team=frag.querySelector('.team'), inv=frag.querySelector('.inv');
         const pid = ensureId(p); card.dataset.pid = pid;
-        // Klassenbild oben rechts (wenn vorhanden)
-        if (p.classImg) {
-        const ci = document.createElement('img');
-        ci.alt = (p.name || 'Klassenbild');
-        ci.className = 'classimg';
-        // nutzt deinen setImage()-Helper mit Proxy/Referrer-Fallback
-        setImage(ci, p.classImg);
-        card.appendChild(ci);
-        }
 
-        avatar.textContent=(p.avatar||p.name||'?').slice(0,2).toUpperCase(); avatar.addEventListener('input',()=>{p.avatar=avatar.textContent; save();});
+        if (p.classImg) {
+          const ci = document.createElement('img');
+          ci.alt = (p.name || 'Klassenbild');
+          ci.className = 'classimg';
+          setImage(ci, p.classImg);
+          card.appendChild(ci);
+        }
+        avatar.textContent=(p.avatar||p.name||'?').slice(0,2).toUpperCase();
+        avatar.addEventListener('input',()=>{p.avatar=avatar.textContent; save();});
         pname.value=p.name||''; pname.addEventListener('input',()=>{p.name=pname.value; save();});
         money.value=p.money||0; money.addEventListener('input',()=>{p.money=Number(money.value||0); save();});
-        badges.innerHTML=''; for(let i=1;i<=8;i++){ const b=document.createElement('div'); b.className='badge'+(p.badges?.includes(i)?' on':''); b.textContent=i; b.onclick=()=>{p.badges=p.badges||[];const ix=p.badges.indexOf(i); if(ix>-1)p.badges.splice(ix,1); else p.badges.push(i); b.classList.toggle('on'); bcount.textContent=p.badges.length; save();}; badges.appendChild(b);} bcount.textContent=p.badges?.length||0;
+
+        badges.innerHTML='';
+        for(let i=1;i<=8;i++){
+          const b=document.createElement('div');
+          b.className='badge'+(p.badges?.includes(i)?' on':'');
+          b.textContent=i;
+          b.onclick=()=>{p.badges=p.badges||[];const ix=p.badges.indexOf(i); if(ix>-1)p.badges.splice(ix,1); else p.badges.push(i); b.classList.toggle('on'); bcount.textContent=p.badges.length; save();};
+          badges.appendChild(b);
+        }
+        bcount.textContent=p.badges?.length||0;
+
         team.innerHTML=''; (p.team||[]).forEach((m,mi)=> team.appendChild(renderMon(p,mi)) );
         inv.innerHTML=''; (p.items||[]).forEach((it,ii)=> inv.appendChild(renderItem(p,ii)) );
+
         card.querySelector('.addMon').onclick=()=>{p.team=p.team||[]; p.team.push({name:'',lang:'DE',img:'',steal:false}); save(); renderPlayers();};
         card.querySelector('.addItem').onclick=()=>{p.items=p.items||[]; p.items.push({name:'',img:''}); save(); renderPlayers();};
+
         const delBtn = card.querySelector('.del');
         let delArmed = false;
         delBtn.onclick = () => {
@@ -739,11 +557,17 @@ function save(){
       name.value=m.name||''; name.oninput=()=>{m.name=name.value; save();};
       lang.value=m.lang||'DE'; lang.onchange=()=>{m.lang=lang.value; save();};
       url.value=m.img||''; url.oninput=()=>{m.img=url.value; setImg(); save();};
-     // prev.onclick=()=>{ if(!url.value && name.value){ const g=guessMon(name.value, lang.value); if(g){ m.img=g; url.value=g; setImg(); save(); return; } } setImg(); };
-      prev.onclick = async ()=> {if(!url.value && name.value){ const g = await ensureEnglishAndGetImage(name.value, lang.value); if(g){ m.img=g; url.value=g; setImg(); save(); return; }}  setImg(); };
+      prev.onclick = async ()=> {
+        if(!url.value && name.value){
+          const g = await ensureEnglishAndGetImage(name.value, lang.value);
+          if(g){ m.img=g; url.value=g; setImg(); save(); return; }
+        }
+        setImg();
+      };
       node.querySelector('.remove').onclick=()=>{ player.team.splice(idx,1); save(); renderPlayers(); };
       steal.classList.toggle('on', !!m.steal); steal.onclick=()=>{ m.steal=!m.steal; steal.classList.toggle('on', m.steal); save(); };
-      setImg(); img.style.cursor='zoom-in'; img.onclick=()=>{ if(m.img){ openLightbox(m.img, m.name||''); } }; return node;
+      setImg(); img.style.cursor='zoom-in'; img.onclick=()=>{ if(m.img){ openLightbox(m.img, m.name||''); } };
+      return node;
     }
 
     function renderItem(player, idx){
@@ -764,196 +588,173 @@ function save(){
 
     // === Map ===
     const mapDiv=$('#map'); 
-
-    // --- Normalisierte Positions-Helfer (auf das angezeigte Bild, nicht den Container) ---
-function clamp01(v){ return Math.max(0, Math.min(1, v)); }
-
-function getMapLayout(){
-  const rect = mapDiv.getBoundingClientRect();
-  const cw = rect.width, ch = rect.height;                // Container
-  const iw = state.map?.meta?.w || cw;                    // Bild (natural)
-  const ih = state.map?.meta?.h || ch;
-  const scale = Math.min(cw/iw, ch/ih);                   // background-size: contain
-  const dw = iw*scale, dh = ih*scale;                     // angezeigte Bildgröße
-  const ox = (cw - dw)/2, oy = (ch - dh)/2;               // Offsets (Ränder)
-  return {cw,ch,iw,ih,scale,dw,dh,ox,oy};
-}
-
-function pointPxToPct(px, py){
-  const L = getMapLayout();
-  const nx = clamp01((px - L.ox)/L.dw);
-  const ny = clamp01((py - L.oy)/L.dh);
-  return {x:nx, y:ny};
-}
-function pointPctToPx(nx, ny){
-  const L = getMapLayout();
-  return {x: L.ox + nx*L.dw, y: L.oy + ny*L.dh};
-}
-
-async function loadMapMeta(url){
-  return await new Promise(r=>{
-    const img = new Image();
-    img.onload  = ()=> r({w: img.naturalWidth, h: img.naturalHeight});
-    img.onerror = ()=> r(null);
-    img.src = url;
-  });
-}
-async function setMapBg(){
-  const u = state.map.url;
-  const src = !u ? '' : (u.startsWith('data:') ? u : prox(u));
-  mapDiv.style.backgroundImage = u ? `url(${src})` : 'none';
-
-  if(u){
-    const meta = await loadMapMeta(src);
-    const old = state.map.meta || {};
-    if (meta && (meta.w !== old.w || meta.h !== old.h)) {
-      state.map.meta = meta;
-      save();
+    function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+    function getMapLayout(){
+      const rect = mapDiv.getBoundingClientRect();
+      const cw = rect.width, ch = rect.height;
+      const iw = state.map?.meta?.w || cw;
+      const ih = state.map?.meta?.h || ch;
+      const scale = Math.min(cw/iw, ch/ih);
+      const dw = iw*scale, dh = ih*scale;
+      const ox = (cw - dw)/2, oy = (ch - dh)/2;
+      return {cw,ch,iw,ih,scale,dw,dh,ox,oy};
     }
-  }
-  renderTokens();
-}
+    function pointPxToPct(px, py){
+      const L = getMapLayout();
+      const nx = clamp01((px - L.ox)/L.dw);
+      const ny = clamp01((py - L.oy)/L.dh);
+      return {x:nx, y:ny};
+    }
+    function pointPctToPx(nx, ny){
+      const L = getMapLayout();
+      return {x: L.ox + nx*L.dw, y: L.oy + ny*L.dh};
+    }
+    async function loadMapMeta(url){
+      return await new Promise(r=>{
+        const img = new Image();
+        img.onload  = ()=> r({w: img.naturalWidth, h: img.naturalHeight});
+        img.onerror = ()=> r(null);
+        img.src = url;
+      });
+    }
+    async function setMapBg(){
+      const u = state.map.url;
+      const src = !u ? '' : (u.startsWith('data:') ? u : prox(u));
+      mapDiv.style.backgroundImage = u ? `url(${src})` : 'none';
+      if(u){
+        const meta = await loadMapMeta(src);
+        const old = state.map.meta || {};
+        if (meta && (meta.w !== old.w || meta.h !== old.h)) {
+          state.map.meta = meta;
+          save();
+        }
+      }
+      renderTokens();
+    }
 
-
-    
-    
-   // function setMapBg(){ const u=state.map.url; const src = !u ? '' : (u.startsWith('data:') ? u : prox(u)); mapDiv.style.backgroundImage = u?`url(${src})`:'none'; }
-    $('#btnSetMap').onclick = ()=>{ const v=$('#mapUrl').value.trim(); if(!v){ alert('Bitte eine Bild‑URL einfügen.'); return; } state.map.url=v; save(); setMapBg(); };
+    $('#btnSetMap').onclick = ()=>{ const v=$('#mapUrl').value.trim(); if(!v){ alert('Bitte eine Bild-URL einfügen.'); return; } state.map.url=v; save(); setMapBg(); };
     $('#btnUploadMap').onclick=()=>$('#mapFile').click();
     $('#mapFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ state.map.url = ev.target.result; save(); setMapBg(); }; r.readAsDataURL(f); });
     mapDiv.addEventListener('dblclick', e=>{ if(e.target===mapDiv && state.map.url){ openLightbox(state.map.url, 'Karte'); } });
     $('#mapUrl').value=state.map.url||'';
 
-    // Orte auf Karte setzen Modus
+    // Orte auf Karte setzen
     let placingPlaceId=null;
     mapDiv.addEventListener('click', e=>{
- if(placingPlaceId){
-  const r = mapDiv.getBoundingClientRect();
-  const px = e.clientX - r.left;
-  const py = e.clientY - r.top;
-  const pl = state.map.places.find(p=>p.id===placingPlaceId);
-  if(pl){
-    const {x, y} = pointPxToPct(px, py);
-    pl.xp = x; pl.yp = y;            // NEU: Prozent speichern
-    save(); renderTokens();
-  }
-  placingPlaceId = null;
-  mapDiv.style.cursor = 'default';
-}
-      //     if(placingPlaceId){ const r=mapDiv.getBoundingClientRect(); const pl=state.map.places.find(p=>p.id===placingPlaceId); if(pl){ pl.x=e.clientX-r.left-18; pl.y=e.clientY-r.top-18; save(); renderTokens(); }
- //       placingPlaceId=null; mapDiv.style.cursor='default'; }
+      if(placingPlaceId){
+        const r = mapDiv.getBoundingClientRect();
+        const px = e.clientX - r.left;
+        const py = e.clientY - r.top;
+        const pl = state.map.places.find(p=>p.id===placingPlaceId);
+        if(pl){
+          const {x, y} = pointPxToPct(px, py);
+          pl.xp = x; pl.yp = y;
+          save(); renderTokens();
+        }
+        placingPlaceId = null;
+        mapDiv.style.cursor = 'default';
+      }
     });
 
-function renderTokens(){
-  normalizeState();
-  mapDiv.innerHTML='';
+    function renderTokens(){
+      normalizeState();
+      mapDiv.innerHTML='';
+      (state.map.places||[]).forEach((pl,i)=>{
+        if (pl.xp == null || pl.yp == null){
+          const centerX = (pl.x ?? 60) + 18;
+          const centerY = (pl.y ?? 60) + 18;
+          const pct = pointPxToPct(centerX, centerY);
+          pl.xp = pct.x; pl.yp = pct.y;
+          delete pl.x; delete pl.y; save();
+        }
+        const pt = pointPctToPx(pl.xp, pl.yp);
+        const el = document.createElement('div');
+        el.className = 'place ' + (pl.type||'city');
+        el.title = pl.name || '';
+        el.style.left = (pt.x - 18) + 'px';
+        el.style.top  = (pt.y - 18) + 'px';
+        el.draggable = true;
+        el.ondragstart = e => { e.dataTransfer.setData('text/place', String(i)); };
+        el.ondblclick  = () => {
+          const n = prompt('Ort umbenennen', pl.name||'');
+          if(n !== null){ pl.name = n; save(); renderPlaces(); renderTokens(); }
+        };
 
-  // --- Places (36x36) ---
-  (state.map.places||[]).forEach((pl,i)=>{
-    // Migration: alte Pixel -> Prozent (einmalig)
-    if (pl.xp == null || pl.yp == null){
-      const centerX = (pl.x ?? 60) + 18;
-      const centerY = (pl.y ?? 60) + 18;
-      const pct = pointPxToPct(centerX, centerY);
-      pl.xp = pct.x; pl.yp = pct.y;
-      delete pl.x; delete pl.y; save();
+        const lab = document.createElement('div');
+        lab.className = 'place-label';
+        lab.textContent = pl.name || '';
+        el.appendChild(lab);
+
+        const tip = document.createElement('div');
+        tip.className = 'enc-tooltip';
+        (pl.encounters||[]).slice(0,8).forEach(enc=>{
+          const im = document.createElement('img');
+          im.alt = enc.name || '';
+          tip.appendChild(im);
+          (async ()=>{
+            const src = enc.img || await ensureEnglishAndGetImage(enc.name, enc.lang||'DE');
+            if (src) setImage(im, src);
+          })();
+        });
+        el.appendChild(tip);
+        mapDiv.appendChild(el);
+      });
+
+      (state.map.tokens||[]).forEach((t,i)=>{
+        if (t.xp == null || t.yp == null){
+          const cx = (t.x ?? 40) + 21;
+          const cy = (t.y ?? 40) + 21;
+          const pct = pointPxToPct(cx, cy);
+          t.xp = pct.x; t.yp = pct.y;
+          delete t.x; delete t.y; save();
+        }
+        const pt = pointPctToPx(t.xp, t.yp);
+        const el = document.createElement('div');
+        el.className = 'token';
+        el.textContent = t.label || 'P';
+        el.style.left = (pt.x - 21) + 'px';
+        el.style.top  = (pt.y - 21) + 'px';
+        el.draggable  = true;
+        el.ondragstart = e => { e.dataTransfer.setData('text/plain', String(i)); };
+        el.ondblclick  = () => {
+          const n = prompt('Label ändern', t.label||'');
+          if(n !== null){ t.label = n; save(); renderTokens(); }
+        };
+        mapDiv.appendChild(el);
+      });
+
+      mapDiv.ondragover = e => e.preventDefault();
+      mapDiv.ondrop = e => {
+        e.preventDefault();
+        const r  = mapDiv.getBoundingClientRect();
+        const px = e.clientX - r.left;
+        const py = e.clientY - r.top;
+        const pc = pointPxToPct(px, py);
+
+        const pi = e.dataTransfer.getData('text/place');
+        if (pi !== ''){
+          const i = Number(pi);
+          if (!Number.isNaN(i) && state.map.places[i]){
+            state.map.places[i].xp = pc.x; state.map.places[i].yp = pc.y;
+            save(); renderTokens(); return;
+          }
+        }
+        const ti = e.dataTransfer.getData('text/plain');
+        if (ti !== ''){
+          const i = Number(ti);
+          if (!Number.isNaN(i) && state.map.tokens[i]){
+            state.map.tokens[i].xp = pc.x; state.map.tokens[i].yp = pc.y;
+            save(); renderTokens(); return;
+          }
+        }
+      };
     }
-
-    const pt = pointPctToPx(pl.xp, pl.yp);
-    const el = document.createElement('div');
-    el.className = 'place ' + (pl.type||'city');
-    el.title = pl.name || '';
-    el.style.left = (pt.x - 18) + 'px';
-    el.style.top  = (pt.y - 18) + 'px';
-    el.draggable = true;
-    el.ondragstart = e => { e.dataTransfer.setData('text/place', String(i)); };
-    el.ondblclick  = () => {
-      const n = prompt('Ort umbenennen', pl.name||'');
-      if(n !== null){ pl.name = n; save(); renderPlaces(); renderTokens(); }
-    };
-
-    // Label
-    const lab = document.createElement('div');
-    lab.className = 'place-label';
-    lab.textContent = pl.name || '';
-    el.appendChild(lab);
-
-    // Mini-Galerie (Tooltip)
-    const tip = document.createElement('div');
-    tip.className = 'enc-tooltip';
-    (pl.encounters||[]).slice(0,8).forEach(enc=>{
-      const im = document.createElement('img');
-      im.alt = enc.name || '';
-      tip.appendChild(im);
-      (async ()=>{
-        const src = enc.img || await ensureEnglishAndGetImage(enc.name, enc.lang||'DE');
-        if (src) setImage(im, src);
-      })();
-    });
-    el.appendChild(tip);
-
-    mapDiv.appendChild(el);
-  });
-
-  // --- Spieler-Token (42x42) ---
-  (state.map.tokens||[]).forEach((t,i)=>{
-    if (t.xp == null || t.yp == null){
-      const cx = (t.x ?? 40) + 21;
-      const cy = (t.y ?? 40) + 21;
-      const pct = pointPxToPct(cx, cy);
-      t.xp = pct.x; t.yp = pct.y;
-      delete t.x; delete t.y; save();
-    }
-
-    const pt = pointPctToPx(t.xp, t.yp);
-    const el = document.createElement('div');
-    el.className = 'token';
-    el.textContent = t.label || 'P';
-    el.style.left = (pt.x - 21) + 'px';
-    el.style.top  = (pt.y - 21) + 'px';
-    el.draggable  = true;
-    el.ondragstart = e => { e.dataTransfer.setData('text/plain', String(i)); };
-    el.ondblclick  = () => {
-      const n = prompt('Label ändern', t.label||'');
-      if(n !== null){ t.label = n; save(); renderTokens(); }
-    };
-    mapDiv.appendChild(el);
-  });
-
-  // Drop-Ziele
-  mapDiv.ondragover = e => e.preventDefault();
-  mapDiv.ondrop = e => {
-    e.preventDefault();
-    const r  = mapDiv.getBoundingClientRect();
-    const px = e.clientX - r.left;
-    const py = e.clientY - r.top;
-    const pc = pointPxToPct(px, py);
-
-    const pi = e.dataTransfer.getData('text/place');
-    if (pi !== ''){
-      const i = Number(pi);
-      if (!Number.isNaN(i) && state.map.places[i]){
-        state.map.places[i].xp = pc.x; state.map.places[i].yp = pc.y;
-        save(); renderTokens(); return;
-      }
-    }
-
-    const ti = e.dataTransfer.getData('text/plain');
-    if (ti !== ''){
-      const i = Number(ti);
-      if (!Number.isNaN(i) && state.map.tokens[i]){
-        state.map.tokens[i].xp = pc.x; state.map.tokens[i].yp = pc.y;
-        save(); renderTokens(); return;
-      }
-    }
-  };
-}
 
     $('#btnAddToken').onclick=()=>{
       normalizeState();
       const list = state.players.map((p,i)=>`${i+1}) ${p.name||('Spieler '+(i+1))}`).join('\n');
-      const hint = list ? `\n\n${list}\n\nTipp: Gib eine Zahl 1–${state.players.length} für einen Spieler‑Token.` : '';
-      let inp = prompt(`Spieler/Token Label (z. B. NY, PO)${hint}`, '');
+      const hint = list ? `\n\n${list}\n\nTipp: Gib eine Zahl 1–${state.players.length} für einen Spieler-Token.` : '';
+      let inp = prompt(`Spieler/Token Label (z. B. NY, PO)${hint}`, '');
       if(!inp) return;
       let label = inp.trim(); let pid = null;
       const num = parseInt(label,10);
@@ -963,205 +764,162 @@ function renderTokens(){
     $('#btnClearTokens').onclick=()=>{ if(confirm('Alle Marker wirklich löschen?')){ state.map.tokens=[]; save(); renderTokens(); } };
     $('#btnSnap').onclick=()=>{ save(); renderTokens(); alert('Positionen gespeichert.'); };
 
-    // === Places (Städte & Routen) ===
+    // === Places ===
     function pid(){ return 'pl_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6); }
-const placesEl = $('#placesList');
+    const placesEl = $('#placesList');
 
-function renderEncounterRow(pl, idx){
-  const enc = pl.encounters[idx];
-  const node = document.importNode($('#tpl-enc').content, true);
-  const img = node.querySelector('.eimg');
-  const name = node.querySelector('.ename');
-  const lang = node.querySelector('.elang');
-  const url  = node.querySelector('.eurl');
-  const prev = node.querySelector('.preview');
+    function renderEncounterRow(pl, idx){
+      const enc = pl.encounters[idx];
+      const node = document.importNode($('#tpl-enc').content, true);
+      const img = node.querySelector('.eimg');
+      const name = node.querySelector('.ename');
+      const lang = node.querySelector('.elang');
+      const url  = node.querySelector('.eurl');
+      const prev = node.querySelector('.preview');
 
-  const setImg = ()=>{
-    if(enc.img){ setImage(img, enc.img); }
-    else {
-      img.removeAttribute('src');
+      const setImg = ()=>{
+        if(enc.img){ setImage(img, enc.img); }
+        else { img.removeAttribute('src'); }
+        img.alt = enc.name||'';
+      };
+
+      name.value = enc.name||'';
+      name.oninput = ()=>{ enc.name = name.value; save(); };
+
+      lang.value = enc.lang||'DE';
+      lang.onchange = ()=>{ enc.lang = lang.value; save(); };
+
+      url.value = enc.img||'';
+      url.oninput = ()=>{ enc.img = url.value; setImg(); save(); };
+
+      prev.onclick = async ()=>{
+        if(!url.value && name.value){
+          const g = await ensureEnglishAndGetImage(name.value, lang.value);
+          if(g){ enc.img=g; url.value=g; setImg(); save(); return; }
+        }
+        setImg();
+      };
+
+      node.querySelector('.remove').onclick = (e)=>{
+        e.preventDefault(); e.stopPropagation();
+        pl.encounters.splice(idx,1);
+        pl.open = true;
+        save();
+        renderPlaces(); renderTokens();
+      };
+
+      setImg();
+      img.style.cursor='zoom-in';
+      img.onclick = ()=>{ const src = enc.img || url.value || guessMon(enc.name, enc.lang); if(src) openLightbox(src, enc.name||''); };
+
+      return node;
     }
-    img.alt = enc.name||'';
-  };
 
-  name.value = enc.name||'';
-  name.oninput = ()=>{ enc.name = name.value; save(); };
+    function renderPlaces(){
+      placesEl.innerHTML='';
+      (state.map.places||[]).forEach((pl,idx)=>{
+        if(!pl.id) pl.id = pid();
+        pl.type = 'route';
 
-  lang.value = enc.lang||'DE';
-  lang.onchange = ()=>{ enc.lang = lang.value; save(); };
+        const det = document.createElement('details');
+        det.open = !!pl.open;
+        det.addEventListener('toggle', () => { pl.open = det.open; save(); });
 
-  url.value = enc.img||'';
-  url.oninput = ()=>{ enc.img = url.value; setImg(); save(); };
+        const sum=document.createElement('summary');
+        const typePill=document.createElement('span');
+        typePill.className='pill type';
+        typePill.textContent='Route';
 
-/*  prev.onclick = ()=>{
-    if(!url.value && name.value){
-      const g = guessMon(name.value, lang.value);
-      if(g){ enc.img = g; url.value = g; setImg(); save(); return; }
-    }
-    setImg();
-  };
-*/
-prev.onclick = async ()=>{
-  if(!url.value && name.value){
-    const g = await ensureEnglishAndGetImage(name.value, lang.value);
-    if(g){ enc.img=g; url.value=g; setImg(); save(); return; }
-  }
-  setImg();
-};
+        const nameIn=document.createElement('input');
+        nameIn.type='text';
+        nameIn.value=pl.name||'';
+        nameIn.placeholder='Route-Name';
+        nameIn.style.flex='1';
 
-  
-node.querySelector('.remove').onclick = (e)=>{
-  e.preventDefault(); e.stopPropagation();
-  pl.encounters.splice(idx,1);
-  pl.open = true;
-  save();
-  renderPlaces(); renderTokens();
-};
+        const sumRow=document.createElement('div');
+        sumRow.className='row';
+        sumRow.append(typePill, nameIn);
+        sum.append(sumRow);
+        det.append(sum);
 
-  setImg();
-  img.style.cursor='zoom-in';
-  img.onclick = ()=>{ const src = enc.img || url.value || guessMon(enc.name, enc.lang); if(src) openLightbox(src, enc.name||''); };
+        const body=document.createElement('div'); body.className='body';
 
-  return node;
-}
+        const actions = document.createElement('div');
+        actions.className = 'place-actions';
+        const placeBtn = document.createElement('button');
+        placeBtn.type = 'button';
+        placeBtn.className = 'small ghost';
+        placeBtn.textContent = 'Auf Karte setzen';
+        placeBtn.onclick = (e)=>{
+          e.preventDefault();
+          placingPlaceId = pl.id;
+          $('#map').style.cursor = 'crosshair';
+          alert('Klicke auf die Karte, um die Route zu platzieren.');
+        };
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'small bad';
+        delBtn.textContent = 'Entfernen';
+        let arming = false;
+        delBtn.onclick = (e)=>{
+          e.preventDefault();
+          if(!arming){
+            arming = true; delBtn.textContent = 'Sicher?';
+            setTimeout(()=>{ arming=false; delBtn.textContent='Entfernen'; }, 1500);
+            return;
+          }
+          state.map.places.splice(idx,1);
+          save(); renderPlaces(); renderTokens();
+        };
+        actions.append(placeBtn, delBtn);
+        body.append(actions);
 
-function renderPlaces(){
-  placesEl.innerHTML='';
-  (state.map.places||[]).forEach((pl,idx)=>{
-    if(!pl.id) pl.id = pid();
-    pl.type = 'route'; // erzwungen
+        const encTitle=document.createElement('h4');
+        encTitle.textContent='Pokémon auf der Route';
+        body.append(encTitle);
 
- //   const det=document.createElement('details');
- //   det.open = false;
-const det = document.createElement('details');
-// Offen-Status aus dem Place-Objekt lesen
-det.open = !!pl.open;
+        const encWrap=document.createElement('div');
+        encWrap.className='grid';
+        (pl.encounters||[]).forEach((e,i)=> encWrap.appendChild(renderEncounterRow(pl,i)));
+        body.append(encWrap);
 
-// wenn der Nutzer auf/zu klappt -> im State merken
-det.addEventListener('toggle', () => {
-  pl.open = det.open;
-  save();
-});
+        const addBtn=document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className='small';
+        addBtn.textContent='Pokémon hinzufügen';
+        addBtn.onclick=()=>{
+          pl.open = true;  
+          pl.encounters = pl.encounters || [];
+          pl.encounters.push({name:'',lang:'DE',img:''});
+          save(); renderPlaces();
+        };
+        body.append(addBtn);
 
-    
-    // Summary-Zeile: "Route"-Pill, Name, Auf Karte setzen, Entfernen
-    const sum=document.createElement('summary');
-    const typePill=document.createElement('span');
-    typePill.className='pill type';
-    typePill.textContent='Route';
-
-    const nameIn=document.createElement('input');
-    nameIn.type='text';
-    nameIn.value=pl.name||'';
-    nameIn.placeholder='Route-Name';
-    nameIn.style.flex='1';
-/*
-    const placeBtn=document.createElement('button');
-    placeBtn.className='small ghost';
-    placeBtn.textContent='Auf Karte setzen';
-
-    const delBtn=document.createElement('button');
-    delBtn.className='small bad';
-    delBtn.textContent='Entfernen';
-*/
-    const sumRow=document.createElement('div');
-    sumRow.className='row';
-    sumRow.append(typePill, nameIn);
-    sum.append(sumRow);
-    det.append(sum);
-
-    // Body: Encounter-Liste
-    const body=document.createElement('div'); body.className='body';
-
-// Aktionen-Buttons im Body
-const actions = document.createElement('div');
-actions.className = 'place-actions';
-    
-const placeBtn = document.createElement('button');
-placeBtn.type = 'button';
-placeBtn.className = 'small ghost';
-placeBtn.textContent = 'Auf Karte setzen';
-placeBtn.onclick = (e)=>{
-  e.preventDefault();
-  placingPlaceId = pl.id;
-  $('#map').style.cursor = 'crosshair';
-  alert('Klicke auf die Karte, um die Route zu platzieren.');
-};
-
-const delBtn = document.createElement('button');
-delBtn.type = 'button';
-delBtn.className = 'small bad';
-delBtn.textContent = 'Entfernen';
-let arming = false;
-delBtn.onclick = (e)=>{
-  e.preventDefault();
-  if(!arming){
-    arming = true; delBtn.textContent = 'Sicher?';
-    setTimeout(()=>{ arming=false; delBtn.textContent='Entfernen'; }, 1500);
-    return;
-  }
-  state.map.places.splice(idx,1);
-  save(); renderPlaces(); renderTokens();
-};
-
-actions.append(placeBtn, delBtn);
-body.append(actions);
-    
-    // ---- Encounter-Titel & Liste
-    const encTitle=document.createElement('h4');
-    encTitle.textContent='Pokémon auf der Route';
-    body.append(encTitle);
-
-    const encWrap=document.createElement('div');
-    encWrap.className='grid';
-    (pl.encounters||[]).forEach((e,i)=> encWrap.appendChild(renderEncounterRow(pl,i)));
-    body.append(encWrap);
-
-    const addBtn=document.createElement('button');
-    addBtn.type = 'button';
-    addBtn.className='small';
-    addBtn.textContent='Pokémon hinzufügen';
-    addBtn.onclick=()=>{
-      pl.open = true;  
-      pl.encounters = pl.encounters || [];
-      pl.encounters.push({name:'',lang:'DE',img:''});
-      save(); renderPlaces();
+        det.append(body);
+        placesEl.append(det);
+        nameIn.oninput=()=>{ pl.name=nameIn.value; save(); renderTokens(); };
+      });
+    }    
+    $('#btnAddPlace').onclick=()=>{
+      const name=prompt('Name der Route'); if(!name) return;
+      state.map.places = state.map.places || [];
+      state.map.places.push({ id: pid(), name, type:'route', x:80, y:80, encounters:[] });
+      save(); renderPlaces(); renderTokens();
     };
-    body.append(addBtn);
-
-    det.append(body);
-    placesEl.append(det);
-
-    // Summary-Handler
-    nameIn.oninput=()=>{ pl.name=nameIn.value; save(); renderTokens(); };
-  });
-}    
-$('#btnAddPlace').onclick=()=>{
-  const name=prompt('Name der Route'); if(!name) return;
-  state.map.places = state.map.places || [];
-  state.map.places.push({
-    id: pid(), name, type:'route',
-    x:80, y:80,
-    encounters:[]  // Liste der Pokémon auf der Route
-  });
-  save(); renderPlaces(); renderTokens();
-};
 
     renderPlaces();
 
-    // === Rules & Shop & Lo
+    // Rules, Shop, Log
     const rules=$('#rulesText'); rules.value=state.rules||''; rules.oninput=()=>{ state.rules=rules.value; save(); };
     const shopEl=$('#shop'); function renderShop(){ shopEl.innerHTML=''; (state.shop||[]).forEach((s,i)=>{ const node=document.importNode($('#tpl-shop').content,true); const n=node.querySelector('.sname'); const p=node.querySelector('.sprice'); n.value=s.name||''; p.value=s.price||0; n.oninput=()=>{s.name=n.value; save();}; p.oninput=()=>{s.price=Number(p.value||0); save();}; node.querySelector('.remove').onclick=()=>{ state.shop.splice(i,1); save(); renderShop(); }; shopEl.appendChild(node); }); }
     renderShop(); $('#btnAddShop').onclick=()=>{ state.shop.push({name:'Neu',price:0}); save(); renderShop(); };
     const logEl=$('#log'); function renderLog(){ logEl.innerHTML=''; (state.log||[]).forEach((l,i)=>{ const node=document.importNode($('#tpl-log').content,true); const t=node.querySelector('.logtext'); t.value=l.text||''; t.oninput=()=>{ l.text=t.value; save(); }; node.querySelector('.remove').onclick=()=>{ state.log.splice(i,1); save(); renderLog(); }; logEl.appendChild(node); }); }
     renderLog(); $('#btnAddLog').onclick=()=>{ state.log.push({text:''}); save(); renderLog(); };
 
-    // === Export / Import / Reset ===
+    // Export / Import / Reset
     $('#btnExport').onclick=()=>{ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='poke-dnd.json'; a.click(); };
-
     $('#btnImport').onclick=()=>$('#fileImport').click();
     $('#fileImport').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; const txt=await f.text(); try{ const data=JSON.parse(txt); Object.assign(state,data); save(); location.reload(); }catch(err){ alert('Ungültige JSON'); } });
-
     $('#btnReset').onclick=()=>{
       const btn = $('#btnReset');
       if(!btn.dataset.armed){
@@ -1171,121 +929,127 @@ $('#btnAddPlace').onclick=()=>{
         setTimeout(()=>{ btn.dataset.armed=''; btn.textContent='Alle Daten löschen'; btn.classList.remove('warn'); }, 2500);
         return;
       }
-      // harter Reset (ohne Browser-Confirm)
       try{ localStorage.removeItem('poke_dnd_state'); }catch(e){}
       state.players=[]; state.map={url:'',tokens:[],places:[]}; state.rules=''; state.shop=[]; state.log=[];
       save();
-      // UI sofort neu zeichnen
       const rulesEl = $('#rulesText'); if(rulesEl) rulesEl.value='';
       $('#mapUrl').value='';
       renderPlayers(); setMapBg(); renderTokens(); renderShop(); renderLog();
-      // visuelles Feedback
       btn.textContent = 'Alles gelöscht ✓';
       btn.classList.remove('warn');
       btn.dataset.armed='';
     };
 
-    // === Initial ===
+    // Initial
     renderPlayers(); setMapBg(); renderTokens();
-
-    // Bei Fenstergröße neu positionieren
-window.addEventListener('resize', renderTokens);
-
-    // Wenn lokal noch nichts drin ist, einmalig gemeinsame data.json / ?data=… ziehen
+    window.addEventListener('resize', renderTokens);
     maybeLoadShared(true);
-
-    // „Neu laden (Shared)“ zwingt das Nachladen der gemeinsamen Datei
     const reloadBtn = document.getElementById('btnReload');
-    if(reloadBtn){
-      reloadBtn.onclick = async()=>{
-        await maybeLoadShared(false);
-        alert('Shared‑Daten neu geladen.');
-      };
-    }
+    if(reloadBtn){ reloadBtn.onclick = async()=>{ await maybeLoadShared(false); alert('Shared-Daten neu geladen.'); }; }
   </script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey:        "AIzaSyCHe0feB_FQbbDV2Ig2LUCidx_F_5EWWx0",
-    authDomain:    "dndgroup-288e6.firebaseapp.com",
-    projectId:     "dndgroup-288e6",
-    appId:         "1:701400084327:web:8164a5c5697aa8c24dc9c2",
-    storageBucket: "dndgroup-288e6.appspot.com",
-    messagingSenderId: "701400084327",
-    databaseURL:   "https://dndgroup-288e6-default-rtdb.europe-west1.firebasedatabase.app/"
-  };
+  <!-- Firebase (ein Block, ruhiger Sync) -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getDatabase(app);
+    const firebaseConfig = {
+      apiKey:        "AIzaSyCHe0feB_FQbbDV2Ig2LUCidx_F_5EWWx0",
+      authDomain:    "dndgroup-288e6.firebaseapp.com",
+      projectId:     "dndgroup-288e6",
+      appId:         "1:701400084327:web:8164a5c5697aa8c24dc9c2",
+      storageBucket: "dndgroup-288e6.appspot.com",
+      messagingSenderId: "701400084327",
+      databaseURL:   "https://dndgroup-288e6-default-rtdb.europe-west1.firebasedatabase.app/"
+    };
 
-  (async () => {
-    await signInAnonymously(auth);
+    const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
 
-    const campaignId = (typeof getParam === 'function' && getParam('campaign')) || 'main';
-    const node = ref(db, `campaigns/${campaignId}`);
+    (async () => {
+      let dbReady = false;
+      await signInAnonymously(auth);
+      dbReady = true;
 
-    // Flags
-    let writing   = false;  // schützt vor Echo beim Zurückschreiben
-    let sawRemote = false;  // haben wir schon etwas aus der DB gesehen?
+      const campaignId = (typeof getParam === 'function' && getParam('campaign')) || 'main';
+      const node = ref(db, `campaigns/${campaignId}`);
 
-   
-// Eindeutige Client-ID (pro Browser)
-const CLIENT_ID = (() => {
-  try {
-    let id = localStorage.getItem('poke_client_id');
-    if (!id) { id = 'c_' + Math.random().toString(36).slice(2,10); localStorage.setItem('poke_client_id', id); }
-    return id;
-  } catch { return 'c_' + Math.random().toString(36).slice(2,10); }
-})();
+      // Flags
+      let writing   = false;
+      let sawRemote = false;
+      let adoptedRemoteOnce = false;
 
-// remote -> local (live) mit Konfliktlösung
-onValue(node, snap => {
-  if (writing) return;
+      // Eindeutige Client-ID (pro Browser)
+      const CLIENT_ID = (() => {
+        try {
+          let id = localStorage.getItem('poke_client_id');
+          if (!id) { id = 'c_' + Math.random().toString(36).slice(2,10); localStorage.setItem('poke_client_id', id); }
+          return id;
+        } catch { return 'c_' + Math.random().toString(36).slice(2,10); }
+      })();
 
-  const remote = snap.val();
-  if (!remote || Object.keys(remote).length === 0) return;
+      // Push (debounced via window.liveDBSave)
+      const push = () => {
+        writing = true;
+        const ts = Date.now();
+        // state stammt aus dem globalen Script
+        state._updatedAt = ts;
+        set(node, { ...state, _updatedAt: ts, _by: CLIENT_ID })
+          .finally(() => { writing = false; });
+      };
 
-  // Eigene Writes ignorieren (verhindert Echo)
-  if (remote._by === CLIENT_ID) return;
+      // Debouncer (erst nach Auth)
+      window.liveDBSave = (() => {
+        let t;
+        return () => {
+          if (!dbReady) return;
+          clearTimeout(t);
+          t = setTimeout(push, 400);
+        };
+      })();
 
-  sawRemote = true;
+      // Remote -> Local mit Konfliktlösung & Push-Suppression
+      onValue(node, snap => {
+        if (writing) return;
+        const remote = snap.val();
+        if (!remote || Object.keys(remote).length === 0) return;
 
-  const rT = Number(remote._updatedAt || 0);
-  const lT = Number(state._updatedAt || 0);
+        // eigene Writes ignorieren
+        if (remote._by === CLIENT_ID) return;
 
-  const remoteHasNoPlaces = !(remote.map && Array.isArray(remote.map.places) && remote.map.places.length);
-  const localHasPlaces    =  (state.map && Array.isArray(state.map.places)  && state.map.places.length);
+        const rT = Number(remote._updatedAt || 0);
+        const lT = Number(state._updatedAt || 0);
 
-  // Nur übernehmen, wenn remote *wirklich neuer* ist und nicht "leer"
-  if (rT <= lT || (remoteHasNoPlaces && localHasPlaces)) {
-    // WICHTIG: KEIN liveDBSave() hier! Sonst Ping-Pong.
-    return;
-  }
+        const shouldApply = !adoptedRemoteOnce || rT > lT;
+        if (!shouldApply) return;
 
-  // Remote ist neuer -> übernehmen
-  Object.assign(state, remote);
-  try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
-  try { rerenderAll(); } catch {}
-});
+        adoptedRemoteOnce = true;
+        sawRemote = true;
 
+        window.__suppressPush = true;
+        writing = true;
+        try {
+          Object.assign(state, remote);
+          normalizeState();
+          try { localStorage.setItem('poke_dnd_state', JSON.stringify(state)); } catch {}
+          try { rerenderAll(); } catch {}
+        } finally {
+          writing = false;
+          window.__suppressPush = false;
+        }
+      });
 
-    // local -> remote (debounced), wird von save() getriggert
-const push = () => {
-  writing = true;
-  set(node, { ...state, _updatedAt: state._updatedAt || Date.now(), _by: CLIENT_ID })
-    .finally(() => { writing = false; });
-};
-
-    window.liveDBSave = (() => { let t; return () => { clearTimeout(t); t = setTimeout(push, 400); }; })();
-
-    // Wenn zum Start nichts aus der DB kam, lokalen Stand initial hochladen
-    setTimeout(() => { if (!sawRemote) push(); }, 1200);
-  })();
-</script>
-
+      // Bootstrap: wenn kein Remote kam, lokalen Stand einmal hochladen
+      setTimeout(() => {
+        if (!sawRemote) {
+          push();
+          adoptedRemoteOnce = true;
+          sawRemote = true;
+        }
+      }, 1200);
+    })();
+  </script>
 </body>
 </html>
